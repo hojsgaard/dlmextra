@@ -148,7 +148,7 @@ CC.dlmFiltered <- function(object, select=TRUE){
     out <- 
         dlmSvd2var(pickr(object$U.C, select, drop=FALSE),
                    pickr(object$D.C, select, drop=FALSE))
-    if (length(select) == 1) out[[1]] else out
+    if (is.numeric(select) && length(select) == 1) out[[1]] else out
 }
 
 #' @rdname extract-filtered
@@ -164,7 +164,7 @@ RR.dlmFiltered <- function(object, select=TRUE){
     out <- 
         dlmSvd2var(pickr(object$U.R, select, drop=FALSE),
                    pickr(object$D.R, select, drop=FALSE))
-    if (length(select) == 1) out[[1]] else out
+    if (is.numeric(select) && length(select) == 1) out[[1]] else out    
 }
 
 
