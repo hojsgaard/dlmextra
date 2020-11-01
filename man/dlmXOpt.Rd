@@ -24,7 +24,8 @@ The result of calling optim padded with y and the fitted
     model object.
 }
 \description{
-Fit model by minimizing RSS + pen * length of fitted curve.
+Fit model by minimizing RSS + pen * length of fitted
+    curve.
 
 Not many details for now
 }

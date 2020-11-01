@@ -1,5 +1,7 @@
+## ####################################################################
 
-#' @description Fit model by minimizing RSS + pen * length of fitted curve.
+#' @description Fit model by minimizing RSS + pen * length of fitted
+#'     curve.
 #'
 #' Not many details for now
 #' @title Fit model by minimizing RSS + pen * length of fitted curve.
@@ -16,6 +18,9 @@
 #' @import dlm
 #' @importFrom dlm "dlmMLE" "dlmFilter" "dlmLL"
 #' @importFrom stats "optim"
+#' 
+
+## ####################################################################
 
 #' @export
 dlmXOpt <- function(y, parm, build, pen, method = "L-BFGS-B", ...){
@@ -38,6 +43,8 @@ dlmXOpt <- function(y, parm, build, pen, method = "L-BFGS-B", ...){
   return(out)
 }
 
+## ####################################################################
+
 #' @description A wrapper for calling dlmMLE
 #'
 #' Not many details for now
@@ -51,6 +58,9 @@ dlmXOpt <- function(y, parm, build, pen, method = "L-BFGS-B", ...){
 #' @return The result of calling optim padded with y and the fitted
 #'     model object.
 #' @author Søren Højsgaard
+
+## ####################################################################
+
 #' @export
 dlmXMLE <- function (y, parm, build, method = "L-BFGS-B", ..., debug = FALSE) 
 {
@@ -74,6 +84,7 @@ dlmXMLE <- function (y, parm, build, method = "L-BFGS-B", ..., debug = FALSE)
 ##     return(out)    
 ## }
 
+## ####################################################################
 
 #' @description A wrapper for dlmFilter
 #'
@@ -84,6 +95,9 @@ dlmXMLE <- function (y, parm, build, method = "L-BFGS-B", ..., debug = FALSE)
 #' @param simplify FALSE
 #' @return Same as when calling dlmFilter
 #' @author Søren Højsgaard
+ 
+## ####################################################################
+
 #' @export
 dlmXFilter <- function (object, debug = FALSE, simplify = FALSE){
   dlm::dlmFilter(object$y, object$mod, debug=debug, simplify=simplify)
@@ -99,20 +113,24 @@ pickr  <- function(m, select, drop=TRUE){
     else m[select]
 }
 
+## ####################################################################
+
 ##' @description Extractor for dlmFiltered objects
-##' @name extract-filtered
+##' @name extract-dlmFiltered
 ##' 
 ##' @title Extractor for dlmFiltered objects
-##' @param x 
-##' @param select 
-##' @return 
+##' @param object A dlmFiltered object
+##' @param select Which element to select
+##' @return The relevant result
 ##' @author Søren Højsgaard
 
-#' @rdname extract-filtered
-#' @export 
-mm <- function(x, select=TRUE){UseMethod("mm")}
+## ####################################################################
 
-#' @rdname extract-filtered
+#' @rdname extract-dlmFiltered
+#' @export 
+mm <- function(object, select=TRUE){UseMethod("mm")}
+
+#' @rdname extract-dlmFiltered
 #' @export 
 mm.dlmFiltered <- function(object, select=TRUE){
     if (is.character(select)){
@@ -121,11 +139,11 @@ mm.dlmFiltered <- function(object, select=TRUE){
     pickr(object$m, select, drop=TRUE)
 }
 
-#' @rdname extract-filtered
+#' @rdname extract-dlmFiltered
 #' @export 
-aa <- function(x, select=TRUE){UseMethod("aa")}
+aa <- function(object, select=TRUE){UseMethod("aa")}
 
-#' @rdname extract-filtered
+#' @rdname extract-dlmFiltered
 #' @export 
 aa.dlmFiltered <- function(object, select=TRUE){
     if (is.character(select)){
@@ -135,11 +153,11 @@ aa.dlmFiltered <- function(object, select=TRUE){
 }
 
 
-#' @rdname extract-filtered
+#' @rdname extract-dlmFiltered
 #' @export
-CC <- function(x, select=TRUE){UseMethod("CC")}
+CC <- function(object, select=TRUE){UseMethod("CC")}
 
-#' @rdname extract-filtered
+#' @rdname extract-dlmFiltered
 #' @export 
 CC.dlmFiltered <- function(object, select=TRUE){
     if (is.character(select)){
@@ -151,11 +169,11 @@ CC.dlmFiltered <- function(object, select=TRUE){
     if (is.numeric(select) && length(select) == 1) out[[1]] else out
 }
 
-#' @rdname extract-filtered
+#' @rdname extract-dlmFiltered
 #' @export 
-RR <- function(x, select=TRUE){UseMethod("RR")}
+RR <- function(object, select=TRUE){UseMethod("RR")}
 
-#' @rdname extract-filtered
+#' @rdname extract-dlmFiltered
 #' @export 
 RR.dlmFiltered <- function(object, select=TRUE){
     if (is.character(select)){
@@ -168,3 +186,50 @@ RR.dlmFiltered <- function(object, select=TRUE){
 }
 
 
+
+## ####################################################################
+
+##' @description Extractor for dlm objects
+##' @name extract-dlm
+##' 
+##' @title Extractor for dlm objects
+##' @param mod dlm object
+##' @param i Row in X matrix 
+##' @return The relevant result
+##' @author Søren Højsgaard
+##'
+## ####################################################################
+
+#' @rdname extract-dlm
+#' @export 
+getFF <- function(mod, i){
+    if (is.null(JFF(mod))) return(FF(mod))
+
+    FFF <- FF(mod)    
+    JFFF <- JFF(mod)
+    FFF[JFFF !=0] <- X(mod)[i,]
+    FFF
+}
+
+#' @rdname extract-dlm
+#' @export 
+getGG <- function(mod, i){
+    if (is.null(JGG(mod))) return(GG(mod))
+    
+    GGG <- FF(mod)
+    JGGG <- JFF(mod)
+    GGG[JGGG !=0] <- X(mod)[i,]
+    GGG
+}
+
+#' @rdname extract-dlm
+#' @export 
+getVV <- function(mod, i){
+    if (is.null(JV(mod))) return(V(mod))
+}
+
+#' @rdname extract-dlm
+#' @export 
+getWW <- function(mod, i){
+    if (is.null(JW(mod))) return(W(mod))
+}
