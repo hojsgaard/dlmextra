@@ -12,10 +12,10 @@ knitr::opts_chunk$set(
 )
 ```
 
-# dlmextra
-Extra functionality for the dlm package (for dynamic linear models)
+<!-- # dlmextra -->
+<!-- Extra functionality for the dlm package (for dynamic linear models) -->
 
-# `caracas`: Computer algebra in R
+# `dlmextra`: Extra functionality for the `dlm` package
 
 <!-- badges: start -->
 [![R build status](https://github.com/r-cas/caracas/workflows/R-CMD-check/badge.svg)](https://github.com/r-cas/caracas/actions) 

@@ -1,11 +1,11 @@
 
 <!-- README.md is generated from README.Rmd. Please edit only README.Rmd! -->
 
-# dlmextra
+<!-- # dlmextra -->
 
-Extra functionality for the dlm package (for dynamic linear models)
+<!-- Extra functionality for the dlm package (for dynamic linear models) -->
 
-# `caracas`: Computer algebra in R
+# `dlmextra`: Extra functionality for the `dlm` package
 
 <!-- badges: start -->
 
