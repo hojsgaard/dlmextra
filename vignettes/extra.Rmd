@@ -1,0 +1,26 @@
+---
+title: "dlmextra - Additional functionality to the \dlm\ package"
+author: "Søren Højsgaard"
+date: "11/12/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Introduction
+
+The `dlme` package enhances `dlm` by providing extra functionality
+aimed at simplifying the usage of the `dlm` package.
+
+
+```{r}
+library(dlmextra)
+```
+
+## Filtering and forecasting
+
+The `dlm::dlmForecast` function does not work with non-constant models, i.e. models where $F$, $G$, $V$ or $W$ are vary with time. 
+

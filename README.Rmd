@@ -18,8 +18,8 @@ knitr::opts_chunk$set(
 # `dlmextra`: Extra functionality for the `dlm` package
 
 <!-- badges: start -->
-[![R build status](https://github.com/r-cas/caracas/workflows/R-CMD-check/badge.svg)](https://github.com/r-cas/caracas/actions) 
-[![codecov.io](https://codecov.io/gh/r-cas/caracas/branch/master/graphs/badge.svg)](https://codecov.io/gh/r-cas/caracas?branch=master)
+[![R build status](https://github.com/hojsgaard/dlmextra/workflows/R-CMD-check/badge.svg)](https://github.com/hojsgaard/dlmextra/actions) 
+[![codecov.io](https://codecov.io/gh/hojsgaard/dlmextra/branch/master/graphs/badge.svg)](https://codecov.io/gh/hojsgaard/dlmextra?branch=master)
 <!-- badges: end -->
   
 ## Installation
@@ -54,7 +54,7 @@ See <https://github.com/hojsgaard/dlmextra>.
 
 ## Online documentation
 
-See <https://r-cas.github.io/caracas/>.
+See <https://hojsgaard.github.io/dlmextra/>.
 
 ## Brief introduction
 
@@ -63,5 +63,5 @@ library(dlmextra)
 ```
 
 
-Please find more examples in the other vignettes available at <https://r-cas.github.io/caracas/>.
+Please find more examples in the other vignettes available at <https://hojsgaard.github.io/dlmextra/>.
 

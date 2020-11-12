@@ -10,8 +10,8 @@
 <!-- badges: start -->
 
 [![R build
-status](https://github.com/r-cas/caracas/workflows/R-CMD-check/badge.svg)](https://github.com/r-cas/caracas/actions)
-[![codecov.io](https://codecov.io/gh/r-cas/caracas/branch/master/graphs/badge.svg)](https://codecov.io/gh/r-cas/caracas?branch=master)
+status](https://github.com/hojsgaard/dlmextra/workflows/R-CMD-check/badge.svg)](https://github.com/hojsgaard/dlmextra/actions)
+[![codecov.io](https://codecov.io/gh/hojsgaard/dlmextra/branch/master/graphs/badge.svg)](https://codecov.io/gh/hojsgaard/dlmextra?branch=master)
 <!-- badges: end -->
 
 ## Installation
@@ -24,8 +24,9 @@ status](https://github.com/r-cas/caracas/workflows/R-CMD-check/badge.svg)](https
 
 <!-- ``` -->
 
-To build and install from Github with vignettes run this command from
-within `R` (please install `remotes` first if not already installed):
+`dlmextra` is only avaialable on Github. To build and install from
+Github with vignettes run this command from within `R` (please install
+`remotes` first if not already installed):
 
     # install.packages('remotes')
     remotes::install_github("hojsgaard/dlmextra", build_vignettes = TRUE)
@@ -44,7 +45,7 @@ See <https://github.com/hojsgaard/dlmextra>.
 
 ## Online documentation
 
-See <https://r-cas.github.io/caracas/>.
+See <https://hojsgaard.github.io/dlmextra/>.
 
 ## Brief introduction
 
@@ -53,4 +54,4 @@ library(dlmextra)
 ```
 
 Please find more examples in the other vignettes available at
-<https://r-cas.github.io/caracas/>.
+<https://hojsgaard.github.io/dlmextra/>.
