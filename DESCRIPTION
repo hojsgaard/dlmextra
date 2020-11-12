@@ -10,8 +10,12 @@ Encoding: UTF-8
 ZipData: no
 Depends:
   R (>= 3.0)
-Imports: dlm
+Imports:
+  dlm
+Suggests:  
+  knitr
 ByteCompile: Yes
 RoxygenNote: 7.1.1
 LazyData: true
 License: GPL (>= 2)
+VignetteBuilder: knitr

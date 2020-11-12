@@ -22,6 +22,7 @@ dlmXForecast <- function(object, nAhead=1, offset=0){
 #' @rdname forecast
 #' @export
 dlmXForecast.dlm <- function(object, nAhead=1, offset=0){
+    cat("dlmXForecast.dlm\n")
     offset <- 0       ## Overwrite offset
     m.start <- object$m0
     C.start <- object$C0
@@ -31,9 +32,15 @@ dlmXForecast.dlm <- function(object, nAhead=1, offset=0){
 #' @rdname forecast
 #' @export
 dlmXForecast.dlmFiltered <- function(object, nAhead=1, offset=0){
-    mod <- object$mod
-    m.start <- mm(object)[offset,]
-    C.start <- CC(object)[[offset]]        
+    cat("dlmXForecast.dlmFiltered\n")
+    if (offset == 0)
+        return(dlmXForecast(object$mod, nAhead=nAhead, offset=offset))
+
+
+    m.start <- mm(object)[offset + 1,]
+    C.start <- CC(object)[[offset + 1]]        
+    utils::str(list(m.start=m.start, nAhead=nAhead, offset=offset))
+
     forecast_worker(object$mod, m.start, C.start, nAhead, offset)
 }
 
@@ -60,7 +67,7 @@ forecast_worker <- function(mod, m.start, C.start, nAhead, offset){
     a <- a[-1, , drop = FALSE]
     R <- R[-1]
 
-    fore <- list(a=a, R=R, f=f, Q=Q, offset=offset)
+    fore <- list(a=a, R=R, f=f, Q=Q, offset=offset, idx=offset + (1:nAhead))
     ## fore$a # forecasted states
     ## fore$R # forecasted state variances
     ## fore$f # forecasted observations
@@ -68,4 +75,38 @@ forecast_worker <- function(mod, m.start, C.start, nAhead, offset){
 
     class(fore) <- "dlmXForecast_class"
     fore
+}
+
+
+
+## if (is.character(select)){
+##     if (identical(select, "last")) select <- NROW(object$m)
+## }
+
+
+#' @export
+summary.dlmXForecast_class <- function(object, ...){
+
+    Q.diag <- do.call(rbind, lapply(object$Q, diag))
+    R.diag <- do.call(rbind, lapply(object$R, diag))
+    
+    object$Q <- Q.diag
+    object$R <- R.diag
+    names(object)[c(2,4)] <- c("R.diag", "Q.diag")
+    
+    object   
+}
+
+#' @importFrom stats confint
+#' @export
+confint.dlmXForecast_class <- function (object, parm, level = 0.95, ...){
+    ## Note: parm argument is ignored
+    a <- (1 - level)/2
+    a <- c(a, 1 - a)    
+    fac <- stats::qnorm(a)
+    Q.diag <- do.call(rbind, lapply(object$Q, diag))
+    data.frame(fit=object$f,
+               lwr=object$f - fac[2] * sqrt(Q.diag),
+               upr=object$f + fac[2] * sqrt(Q.diag),
+               idx=object$idx)
 }
