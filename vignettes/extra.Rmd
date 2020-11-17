@@ -2,7 +2,9 @@
 title: "`dlmextra` - Additional functionality to the `dlm` package"
 author: "Søren Højsgaard"
 date: "`r date()`"
-output: rmarkdown::html_vignette 
+output: 
+  rmarkdown::html_vignette: 
+    toc: true
 vignette: >
   %\VignetteIndexEntry{extra}
   %\VignetteEngine{knitr::rmarkdown}
@@ -20,7 +22,6 @@ knitr::opts_chunk$set(echo = TRUE)
 
 The `dlmextra` package enhances `dlm` by providing extra functionality
 aimed at simplifying the usage of the `dlm` package.
-
 
 ```{r, message=FALSE}
 library(dlmextra)
