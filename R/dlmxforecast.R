@@ -36,7 +36,6 @@ dlmXForecast.dlmFiltered <- function(object, nAhead=1, offset=0){
     if (offset == 0)
         return(dlmXForecast(object$mod, nAhead=nAhead, offset=offset))
 
-
     m.start <- mm(object)[offset + 1,]
     C.start <- CC(object)[[offset + 1]]        
     utils::str(list(m.start=m.start, nAhead=nAhead, offset=offset))
@@ -67,7 +66,7 @@ forecast_worker <- function(mod, m.start, C.start, nAhead, offset){
     a <- a[-1, , drop = FALSE]
     R <- R[-1]
 
-    fore <- list(a=a, R=R, f=f, Q=Q, offset=offset, idx=offset + (1:nAhead))
+    fore <- list(a=a, R=R, f=f, Q=Q, offset=offset, xrow=offset + (1:nAhead))
     ## fore$a # forecasted states
     ## fore$R # forecasted state variances
     ## fore$f # forecasted observations
@@ -108,5 +107,5 @@ confint.dlmXForecast_class <- function (object, parm, level = 0.95, ...){
     data.frame(fit=object$f,
                lwr=object$f - fac[2] * sqrt(Q.diag),
                upr=object$f + fac[2] * sqrt(Q.diag),
-               idx=object$idx)
+               xrow=object$xrow)
 }

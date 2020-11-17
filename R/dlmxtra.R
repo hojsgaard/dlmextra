@@ -91,7 +91,25 @@ dlmXMLE <- function (y, parm, build, method = "L-BFGS-B", ..., debug = FALSE)
 #' Not many details for now
 #' @title Filter a dlm
 #' @param object Result from calling dlmXMLE or dlmXOpt
-#' @param debug FALSE
+## #' @param debug FALSE
+#' @param simplify FALSE
+#' @return Same as when calling dlmFilter
+#' @author Søren Højsgaard
+ 
+## ####################################################################
+
+
+
+## ####################################################################
+
+#' @description A wrapper for dlmFilter but restricted to using R code
+#'     in the filter.
+#'
+#' Not many details for now
+#' @title Filter a dlm
+#' @param y data
+#' @param object a dlm object
+## #' @param debug FALSE
 #' @param simplify FALSE
 #' @return Same as when calling dlmFilter
 #' @author Søren Højsgaard
@@ -99,9 +117,45 @@ dlmXMLE <- function (y, parm, build, method = "L-BFGS-B", ..., debug = FALSE)
 ## ####################################################################
 
 #' @export
-dlmXFilter <- function (object, debug = FALSE, simplify = FALSE){
-  dlm::dlmFilter(object$y, object$mod, debug=debug, simplify=simplify)
+dlmFilter2 <- function (y, object, simplify = FALSE){
+  dlm::dlmFilter(y, object, debug=TRUE, simplify=simplify)
 } 
+
+
+## ####################################################################
+
+#' @description A wrapper for dlmFilter
+#'
+#' Not many details for now
+#' @title Filter a dlm
+#' @param object Result from calling dlmXMLE or dlmXOpt
+## #' @param debug FALSE
+#' @param simplify FALSE
+#' @return Same as when calling dlmFilter
+#' @author Søren Højsgaard
+ 
+## ####################################################################
+
+#' @export
+dlmXFilter <- function (object, simplify = FALSE){
+  dlm::dlmFilter(object$y, object$mod, debug=TRUE, simplify=simplify)
+} 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

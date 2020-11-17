@@ -1,26 +1,184 @@
 ---
-title: "dlmextra - Additional functionality to the \dlm\ package"
+title: "`dlmextra` - Additional functionality to the `dlm` package"
 author: "Søren Højsgaard"
-date: "11/12/2020"
-output: html_document
+date: "`r date()`"
+output: rmarkdown::html_vignette 
+vignette: >
+  %\VignetteIndexEntry{extra}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
+
+
 ```{r setup, include=FALSE}
+options("digits"=3)
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-
 ## Introduction
 
-The `dlme` package enhances `dlm` by providing extra functionality
+The `dlmextra` package enhances `dlm` by providing extra functionality
 aimed at simplifying the usage of the `dlm` package.
 
 
-```{r}
+```{r, message=FALSE}
 library(dlmextra)
+library(ggplot2)
 ```
+
+## A small example: A dynamic regression model
+
+```{r}
+tt <- seq(1, 6, by=1)
+beta <- c(1, -1)
+dat  <- data.frame(tt=tt)
+M    <- model.matrix(~ tt, data=dat)
+dat$mu   <- M %*% beta
+
+set.seed(121314)
+dat$y0 <- as.numeric(dat$mu) + rnorm(length(dat$mu))
+pt0 <- ggplot(data=dat) + geom_point(aes(tt, y0)) +
+    geom_line(aes(x=tt, y=mu)) 
+pt0
+```
+
+### Dynamic regression model
+
+```{r}
+mm1 <- dlmModReg(M, addInt=FALSE, m0=beta, C0=diag(1,2), dW=rep(.1, 2))
+mm1
+```
+
+
+Now imagine that the observed data are:
+```{r}
+nseen  <- 3
+dat$y <- dat$y0
+dat$y[-(1:nseen)] <- NA
+dat$y
+```
+
+### Filtering
+
+Filtering works because the time varying components can be constructed
+on the fly because the number of rows in the design matrix is at least
+the same as the length of $y$ (including the missing values in $y$). 
+
+Notice that
+there are two underlying engines for the filtering: 
+
+```{r}
+fm1 <- dlmFilter(dat$y, mm1)          ## Filtering based on C code
+fm1$f
+
+fm1 <- dlmFilter(dat$y, mm1, debug=T) ## Filtering based on R code
+fm1$f
+## FIXME: summary(fm1) would be nice
+```
+
+Fortunately we get same results, but that is not always the
+case. 
+
+
+### Filtering a shorter vector
+
+Consider filtering a shorter $y$ vector:
+
+```{r}
+yshort <- dat$y[1:4]
+fm2 <- dlmFilter(yshort, mm1)          ## Using C code
+fm2$f
+
+fm2 <- dlmFilter(yshort, mm1, debug=T) ## Using R code
+fm2$f
+```
+
+When filtering is based on R code, we get results consistent with what
+happened when filtering the full $y$ vector; with C code we get
+something else. This behaviour seems not to be documented anywhere.
+
+### Filtering a longer vector
+
+A related issue is the following: Filtering a $y$ vector longer than
+the number of rows in the design matrix should give an error in a
+non-constant model. The R based engine correctly captures the problem;
+the C based engine does not.
+
+```{r}
+ylong <- c(dat$y, NA, NA)
+fm2 <- try(dlmFilter(ylong, mm1))          ## Using C code
+fm2$f
+
+fm2 <- try(dlmFilter(ylong, mm1, debug=T)) ## Using R code
+fm2
+```
+
+
+
+### Recommendation
+
+Based on these findings, I recommend to stay on the safe side and
+always set `debug=T`. (Fast C code is of course nice; correct results
+are nicer.)
+
+```{r}
+## FIXME: Should handle this in debug=T-issue in dlmextra
+```
+
+
+
+
+```{r}
+sel <- 1:4
+mm(fm1, select=sel)
+CC(fm1, select=sel)
+aa(fm1, select=sel)
+RR(fm1, select=sel)
+## FIXME: diagCC and diagRR would be nice
+```
+
+
 
 ## Filtering and forecasting
 
-The `dlm::dlmForecast` function does not work with non-constant models, i.e. models where $F$, $G$, $V$ or $W$ are vary with time. 
+The `dlm::dlmForecast` function does not work with non-constant
+models, i.e. models where $F$, $G$, $V$ or $W$ are vary with time. The
+problem is that if one of the components is time varying then this
+compenent needs to be constructed on the fly, and this applies also for the time points
+for which forecasting is made.
+
+```{r}
+try(dlm::dlmForecast(fm1, nAhead=length(tt) - nseen))
+```
+
+However, forecasting is nothing but filtering with missing
+data. Hence, as long as the model matrix in the model object has
+enough rows we are fine and can make the necessary computations as
+illustrated above:
+
+```{r, eval=T}
+v  <- dlmXForecast(fm1, nAhead=length(tt) - nseen, offset=nseen)
+ci <- confint(v)
+ci
+```
+
+Now we can plot with prediction intervals etc.
+```{r}
+ci$tt <- tt[ci$xrow]
+pt1 <- pt0 +
+    geom_vline(xintercept=tt[nseen], col="red")   + 
+    geom_line(aes(x=tt, y=fit), data=ci, col="purple") +
+    geom_errorbar(aes(x=tt, ymin=lwr, ymax=upr), data=ci)
+pt1
+```
+
+
+
+
+
+
+
+
+
 
