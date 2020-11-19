@@ -1,58 +1,77 @@
 ---
-title: "`dlmextra` - Additional functionality to the `dlm` package"
+title: "dlmextra - introduction"
 author: "Søren Højsgaard"
 date: "`r date()`"
 output: 
   rmarkdown::html_vignette: 
     toc: true
+    number_sections: true
 vignette: >
-  %\VignetteIndexEntry{extra}
+  %\VignetteIndexEntry{dlmextra - introduction}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-
-
 ```{r setup, include=FALSE}
-options("digits"=3)
+options("digits"=3, "warn"=-1)
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Introduction
+# Introduction
 
-The `dlmextra` package enhances `dlm` by providing extra functionality
-aimed at simplifying the usage of the `dlm` package.
+The `dlmextra` package enhances `dlm` by providing extra
+functionality.
 
 ```{r, message=FALSE}
 library(dlmextra)
 library(ggplot2)
 ```
 
-## A small example: A dynamic regression model
+# A small example: A dynamic regression model
 
 ```{r}
-tt <- seq(1, 6, by=1)
-beta <- c(1, -1)
+tt   <- seq(1, 6, by=1)
+beta <- c(1, -.2)
 dat  <- data.frame(tt=tt)
 M    <- model.matrix(~ tt, data=dat)
-dat$mu   <- M %*% beta
+dat$mu <- M %*% beta
+set.seed(112021)
+dat$y0 <- as.numeric(dat$mu) + rnorm(length(dat$mu), sd=.5)
+```
 
-set.seed(121314)
-dat$y0 <- as.numeric(dat$mu) + rnorm(length(dat$mu))
+```{r}
 pt0 <- ggplot(data=dat) + geom_point(aes(tt, y0)) +
     geom_line(aes(x=tt, y=mu)) 
 pt0
 ```
 
-### Dynamic regression model
+## Dynamic regression model in `dlm`
 
 ```{r}
 mm1 <- dlmModReg(M, addInt=FALSE, m0=beta, C0=diag(1,2), dW=rep(.1, 2))
 mm1
 ```
 
+The model is
 
-Now imagine that the observed data are:
+\begin{align}
+ y_t &= F_t \theta_t + v_t;          & v_t \sim N(0, V_t)\\
+ \theta_t &= G_t \theta_{t-1} + w_t; & w_t \sim N(0,W_t)
+\end{align}
+
+As the model is specified in `dlmModReg` 
+the  matrix $F_t=[1, t]$ is really time
+dependent whereas $G_t$, $V_t$ and $W_t$ are not ($G_t=I$). 
+The $F_t$ matrix is
+constructed on the fly on the basis of the model matrix:
+
+```{r}
+getFF(mm1, 1)
+getFF(mm1, 2)
+```
+
+
+Imagine that we have only seen the first observations:
 ```{r}
 nseen  <- 3
 dat$y <- dat$y0
@@ -60,21 +79,26 @@ dat$y[-(1:nseen)] <- NA
 dat$y
 ```
 
-### Filtering
+We have
+```{r}
+dat
+M
+```
 
-Filtering works because the time varying components can be constructed
+
+## Filtering
+
+Filtering works because the time varying components can be constructed 
 on the fly because the number of rows in the design matrix is at least
-the same as the length of $y$ (including the missing values in $y$). 
-
+the same as the length of $y$ (including the missing values in $y$).
 Notice that
 there are two underlying engines for the filtering: 
 
 ```{r}
-fm1 <- dlmFilter(dat$y, mm1)          ## Filtering based on C code
-fm1$f
-
-fm1 <- dlmFilter(dat$y, mm1, debug=T) ## Filtering based on R code
-fm1$f
+fm1C <- dlmFilter(dat$y, mm1)          ## Filtering based on C code; default
+fm1R <- dlmFilter(dat$y, mm1, debug=T) ## Filtering based on R code
+fm1C$f
+fm1R$f
 ## FIXME: summary(fm1) would be nice
 ```
 
@@ -82,45 +106,43 @@ Fortunately we get same results, but that is not always the
 case. 
 
 
-### Filtering a shorter vector
+### Important issue: Filtering a shorter vector
 
 Consider filtering a shorter $y$ vector:
 
 ```{r}
 yshort <- dat$y[1:4]
-fm2 <- dlmFilter(yshort, mm1)          ## Using C code
-fm2$f
-
-fm2 <- dlmFilter(yshort, mm1, debug=T) ## Using R code
-fm2$f
+fm2C <- dlmFilter(yshort, mm1)          ## Using C code
+fm2R <- dlmFilter(yshort, mm1, debug=T) ## Using R code
+fm2C$f
+fm2R$f
 ```
 
 When filtering is based on R code, we get results consistent with what
 happened when filtering the full $y$ vector; with C code we get
 something else. This behaviour seems not to be documented anywhere.
 
-### Filtering a longer vector
+### Important issue: Filtering a longer vector
 
 A related issue is the following: Filtering a $y$ vector longer than
 the number of rows in the design matrix should give an error in a
-non-constant model. The R based engine correctly captures the problem;
-the C based engine does not.
+non-constant model. (There is no information in the supplied model
+matrix for generating $F_t$ for $t>6$). The R based engine correctly
+captures the problem; the C based engine does not.
 
 ```{r}
 ylong <- c(dat$y, NA, NA)
-fm2 <- try(dlmFilter(ylong, mm1))          ## Using C code
-fm2$f
-
-fm2 <- try(dlmFilter(ylong, mm1, debug=T)) ## Using R code
-fm2
+fm3C <- try(dlmFilter(ylong, mm1))          ## Using C code
+fm3R <- try(dlmFilter(ylong, mm1, debug=T)) ## Using R code
+fm3C %>% lapply(head, 3)
+fm3R
 ```
 
 
-
-### Recommendation
+## Important issue: Recommendation
 
 Based on these findings, I recommend to stay on the safe side and
-always set `debug=T`. (Fast C code is of course nice; correct results
+always set `debug=T`. (Fast C code is nice; correct results
 are nicer.)
 
 ```{r}
@@ -131,15 +153,13 @@ are nicer.)
 
 
 ```{r}
-sel <- 1:4
-mm(fm1, select=sel)
-CC(fm1, select=sel)
-aa(fm1, select=sel)
-RR(fm1, select=sel)
+sel <- 1:6
+mm(fm1R, select=sel)
+CC(fm1R, select=sel)
+aa(fm1R, select=sel)
+RR(fm1R, select=sel)
 ## FIXME: diagCC and diagRR would be nice
 ```
-
-
 
 ## Filtering and forecasting
 
@@ -150,7 +170,7 @@ compenent needs to be constructed on the fly, and this applies also for the time
 for which forecasting is made.
 
 ```{r}
-try(dlm::dlmForecast(fm1, nAhead=length(tt) - nseen))
+try(dlm::dlmForecast(fm1R, nAhead=length(tt) - nseen))
 ```
 
 However, forecasting is nothing but filtering with missing
@@ -159,7 +179,7 @@ enough rows we are fine and can make the necessary computations as
 illustrated above:
 
 ```{r, eval=T}
-v  <- dlmXForecast(fm1, nAhead=length(tt) - nseen, offset=nseen)
+v  <- dlmXForecast(fm1R, nAhead=length(tt)-nseen, offset=nseen)
 ci <- confint(v)
 ci
 ```
