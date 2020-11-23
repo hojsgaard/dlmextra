@@ -10,7 +10,9 @@ Encoding: UTF-8
 ZipData: no
 Depends:
   R (>= 3.0),
-  dlm,
+  dlm
+Imports:
+  magrittr,
   ggplot2
 Suggests:  
   knitr

@@ -19,8 +19,10 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Introduction
 
-The `dlmextra` package enhances `dlm` by providing extra
-functionality.
+The `dlmextra` package (located at
+[https://github.com/hojsgaard/dlmextra]) enhances the `dlm` package
+(see [https://cran.r-project.org/web/packages/dlm/index.html]) by
+providing extra functionality.
 
 ```{r, message=FALSE}
 library(dlmextra)
@@ -88,11 +90,12 @@ M
 
 ## Filtering
 
-Filtering works because the time varying components can be constructed 
+Filtering works because the time varying components can be constructed
 on the fly because the number of rows in the design matrix is at least
 the same as the length of $y$ (including the missing values in $y$).
-Notice that
-there are two underlying engines for the filtering: 
+Notice that there are two underlying engines for the
+filtering. Fortunately we get same results, but that is not always the
+case as we shall see below.
 
 ```{r}
 fm1C <- dlmFilter(dat$y, mm1)          ## Filtering based on C code; default
@@ -101,9 +104,6 @@ fm1C$f
 fm1R$f
 ## FIXME: summary(fm1) would be nice
 ```
-
-Fortunately we get same results, but that is not always the
-case. 
 
 
 ### Important issue: Filtering a shorter vector
@@ -120,7 +120,7 @@ fm2R$f
 
 When filtering is based on R code, we get results consistent with what
 happened when filtering the full $y$ vector; with C code we get
-something else. This behaviour seems not to be documented anywhere.
+something else. This behaviour does not seem to be documented anywhere.
 
 ### Important issue: Filtering a longer vector
 
@@ -128,7 +128,8 @@ A related issue is the following: Filtering a $y$ vector longer than
 the number of rows in the design matrix should give an error in a
 non-constant model. (There is no information in the supplied model
 matrix for generating $F_t$ for $t>6$). The R based engine correctly
-captures the problem; the C based engine does not.
+captures the problem; the C based engine does not. This behaviour does
+not seem to be documented anywhere.
 
 ```{r}
 ylong <- c(dat$y, NA, NA)
@@ -149,15 +150,14 @@ are nicer.)
 ## FIXME: Should handle this in debug=T-issue in dlmextra
 ```
 
-
-
+## Accessing a filtered object
 
 ```{r}
 sel <- 1:6
-mm(fm1R, select=sel)
-CC(fm1R, select=sel)
-aa(fm1R, select=sel)
-RR(fm1R, select=sel)
+getdlmf(fm1R, "m", select=sel)
+getdlmf(fm1R, "C", select=sel)
+getdlmf(fm1R, "a", select=sel)
+getdlmf(fm1R, "R", select=sel)
 ## FIXME: diagCC and diagRR would be nice
 ```
 
@@ -166,8 +166,7 @@ RR(fm1R, select=sel)
 The `dlm::dlmForecast` function does not work with non-constant
 models, i.e. models where $F$, $G$, $V$ or $W$ are vary with time. The
 problem is that if one of the components is time varying then this
-compenent needs to be constructed on the fly, and this applies also for the time points
-for which forecasting is made.
+compenent needs to be constructed on the fly as explained above.
 
 ```{r}
 try(dlm::dlmForecast(fm1R, nAhead=length(tt) - nseen))
@@ -175,14 +174,16 @@ try(dlm::dlmForecast(fm1R, nAhead=length(tt) - nseen))
 
 However, forecasting is nothing but filtering with missing
 data. Hence, as long as the model matrix in the model object has
-enough rows we are fine and can make the necessary computations as
-illustrated above:
+"enough rows" for constructing time dependent quantities we are fine
+and can make the necessary computations as illustrated above:
 
 ```{r, eval=T}
 v  <- dlmXForecast(fm1R, nAhead=length(tt)-nseen, offset=nseen)
 ci <- confint(v)
 ci
 ```
+
+## A couple of nice plots
 
 Now we can plot with prediction intervals etc.
 ```{r}

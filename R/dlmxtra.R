@@ -75,15 +75,6 @@ dlmXMLE <- function (y, parm, build, method = "L-BFGS-B", ..., debug = FALSE)
 }
 
 
-## foo <- function (y, parm, build, method = "L-BFGS-B", ..., debug = FALSE){
-##     cl <- match.call()
-##     cl[[1]] <- as.name("dlmMLE")
-##     out <- eval(cl)
-##     out$mod <- build(out$par, ...)
-##     out$y <- y
-##     return(out)    
-## }
-
 ## ####################################################################
 
 #' @description A wrapper for dlmFilter
@@ -122,6 +113,9 @@ dlmFilter2 <- function (y, object, simplify = FALSE){
 } 
 
 
+
+
+
 ## ####################################################################
 
 #' @description A wrapper for dlmFilter
@@ -145,6 +139,14 @@ dlmXFilter <- function (object, simplify = FALSE){
 
 
 
+## foo <- function (y, parm, build, method = "L-BFGS-B", ..., debug = FALSE){
+##     cl <- match.call()
+##     cl[[1]] <- as.name("dlmMLE")
+##     out <- eval(cl)
+##     out$mod <- build(out$par, ...)
+##     out$y <- y
+##     return(out)    
+## }
 
 
 
@@ -159,131 +161,3 @@ dlmXFilter <- function (object, simplify = FALSE){
 
 
 
-pickr  <- function(m, select, drop=TRUE){
-    ## Select rows from matrix / dataframe and entries from list / vector
-    ##print(head(m)); print(select)
-    if (inherits(m, c("matrix", "data.frame"))) m[select,, drop=drop]
-    else if (inherits(m, "list")) m[select]
-    else m[select]
-}
-
-## ####################################################################
-
-##' @description Extractor for dlmFiltered objects
-##' @name extract-dlmFiltered
-##' 
-##' @title Extractor for dlmFiltered objects
-##' @param object A dlmFiltered object
-##' @param select Which element to select
-##' @return The relevant result
-##' @author Søren Højsgaard
-
-## ####################################################################
-
-#' @rdname extract-dlmFiltered
-#' @export 
-mm <- function(object, select=TRUE){UseMethod("mm")}
-
-#' @rdname extract-dlmFiltered
-#' @export 
-mm.dlmFiltered <- function(object, select=TRUE){
-    if (is.character(select)){
-        if (identical(select, "last")) select <- NROW(object$m)
-    }
-    pickr(object$m, select, drop=TRUE)
-}
-
-#' @rdname extract-dlmFiltered
-#' @export 
-aa <- function(object, select=TRUE){UseMethod("aa")}
-
-#' @rdname extract-dlmFiltered
-#' @export 
-aa.dlmFiltered <- function(object, select=TRUE){
-    if (is.character(select)){
-        if (identical(select, "last")) select <- NROW(object$a)
-    }
-    pickr(object$a, select, drop=TRUE)
-}
-
-
-#' @rdname extract-dlmFiltered
-#' @export
-CC <- function(object, select=TRUE){UseMethod("CC")}
-
-#' @rdname extract-dlmFiltered
-#' @export 
-CC.dlmFiltered <- function(object, select=TRUE){
-    if (is.character(select)){
-        if (identical(select, "last")) select <- NROW(object$U.C)
-    }
-    out <- 
-        dlmSvd2var(pickr(object$U.C, select, drop=FALSE),
-                   pickr(object$D.C, select, drop=FALSE))
-    if (is.numeric(select) && length(select) == 1) out[[1]] else out
-}
-
-#' @rdname extract-dlmFiltered
-#' @export 
-RR <- function(object, select=TRUE){UseMethod("RR")}
-
-#' @rdname extract-dlmFiltered
-#' @export 
-RR.dlmFiltered <- function(object, select=TRUE){
-    if (is.character(select)){
-        if (identical(select, "last")) select <- NROW(object$U.R)
-    }
-    out <- 
-        dlmSvd2var(pickr(object$U.R, select, drop=FALSE),
-                   pickr(object$D.R, select, drop=FALSE))
-    if (is.numeric(select) && length(select) == 1) out[[1]] else out    
-}
-
-
-
-## ####################################################################
-
-##' @description Extractor for dlm objects
-##' @name extract-dlm
-##' 
-##' @title Extractor for dlm objects
-##' @param mod dlm object
-##' @param i Row in X matrix 
-##' @return The relevant result
-##' @author Søren Højsgaard
-##'
-## ####################################################################
-
-#' @rdname extract-dlm
-#' @export 
-getFF <- function(mod, i){
-    if (is.null(JFF(mod))) return(FF(mod))
-
-    FFF <- FF(mod)    
-    JFFF <- JFF(mod)
-    FFF[JFFF !=0] <- X(mod)[i,]
-    FFF
-}
-
-#' @rdname extract-dlm
-#' @export 
-getGG <- function(mod, i){
-    if (is.null(JGG(mod))) return(GG(mod))
-    
-    GGG <- FF(mod)
-    JGGG <- JFF(mod)
-    GGG[JGGG !=0] <- X(mod)[i,]
-    GGG
-}
-
-#' @rdname extract-dlm
-#' @export 
-getVV <- function(mod, i){
-    if (is.null(JV(mod))) return(V(mod))
-}
-
-#' @rdname extract-dlm
-#' @export 
-getWW <- function(mod, i){
-    if (is.null(JW(mod))) return(W(mod))
-}

@@ -1,1 +1,6 @@
-#' import ggplot2
+#' @importFrom magrittr   "%>%"
+#' @export "%>%"
+#'
+
+.dumfunction_afterimportFrom <- function(){}
+
