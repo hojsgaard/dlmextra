@@ -17,6 +17,9 @@ knitr::opts_chunk$set(
 
 # `dlmextra`: Extra functionality for the `dlm` package
 
+Hej!!!
+
+
 <!-- badges: start -->
 [![R build status](https://github.com/hojsgaard/dlmextra/workflows/R-CMD-check/badge.svg)](https://github.com/hojsgaard/dlmextra/actions) 
 [![codecov.io](https://codecov.io/gh/hojsgaard/dlmextra/branch/master/graphs/badge.svg)](https://codecov.io/gh/hojsgaard/dlmextra?branch=master)
