@@ -3,3 +3,4 @@ LICENSE
 ^docs$
 ^pkgdown$
 README.Rmd
+.github

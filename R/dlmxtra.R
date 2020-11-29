@@ -23,7 +23,7 @@
 ## ####################################################################
 
 #' @export
-dlmXOpt <- function(y, parm, build, pen, method = "L-BFGS-B", ...){
+dlmxOpt <- function(y, parm, build, pen, method = "L-BFGS-B", ...){
   
   eval_crit <- function(y, object, pen){
     filt <- dlm::dlmFilter(y, object)
@@ -54,7 +54,7 @@ dlmXOpt <- function(y, parm, build, pen, method = "L-BFGS-B", ...){
 #' @param build Build function
 #' @param method Method used by optim
 #' @param ... Parameters passed on to build and optim
-#' @param debug FALSE
+# #' @param debug FALSE
 #' @return The result of calling optim padded with y and the fitted
 #'     model object.
 #' @author Søren Højsgaard
@@ -62,11 +62,14 @@ dlmXOpt <- function(y, parm, build, pen, method = "L-BFGS-B", ...){
 ## ####################################################################
 
 #' @export
-dlmXMLE <- function (y, parm, build, method = "L-BFGS-B", ..., debug = FALSE) 
+dlmxMLE <- function (y, parm, build, method = "L-BFGS-B", ...) 
 {
   logLik <- function(parm, ...) {
-    mod <- build(parm, ...)
-    return(dlm::dlmLL(y = y, mod = mod, debug = debug))
+      mod <- build(parm, ...)
+      if (!is.null(X(mod)) && (nrX <- NROW(X(mod))) < (nry <- NROW(y)))
+          stop("X matrix does not have correct dimension: nrow of X: ", nrX, " length of y: ", nry, "\n")
+      
+      return(dlm::dlmLL(y = y, mod = mod, debug = TRUE))
   }
   out <- optim(parm, logLik, method = method, ...)
   out$mod <- build(out$par, ...)
@@ -81,7 +84,7 @@ dlmXMLE <- function (y, parm, build, method = "L-BFGS-B", ..., debug = FALSE)
 #'
 #' Not many details for now
 #' @title Filter a dlm
-#' @param object Result from calling dlmXMLE or dlmXOpt
+#' @param object Result from calling dlmxMLE or dlmxOpt
 ## #' @param debug FALSE
 #' @param simplify FALSE
 #' @return Same as when calling dlmFilter
@@ -95,12 +98,13 @@ dlmXMLE <- function (y, parm, build, method = "L-BFGS-B", ..., debug = FALSE)
 
 #' @description A wrapper for dlmFilter but restricted to using R code
 #'     in the filter.
-#'
-#' Not many details for now
 #' @title Filter a dlm
-#' @param y data
-#' @param object a dlm object
-## #' @param debug FALSE
+#' @param y The data. ‘y’ can be a vector, a matrix, a univariate or
+#'           multivariate time series.
+#' @param object An object of class ‘dlm’, or a list with components ‘m0’,
+#'          ‘C0’, ‘FF’, ‘V’, ‘GG’, ‘W’, and optionally ‘JFF’, ‘JV’,
+#'          ‘JGG’, ‘JW’, and ‘X’, defining the model and the parameters
+#'          of the prior distribution.
 #' @param simplify FALSE
 #' @return Same as when calling dlmFilter
 #' @author Søren Højsgaard
@@ -108,32 +112,69 @@ dlmXMLE <- function (y, parm, build, method = "L-BFGS-B", ..., debug = FALSE)
 ## ####################################################################
 
 #' @export
-dlmFilter2 <- function (y, object, simplify = FALSE){
+dlmxFilter <- function (y, object, simplify = FALSE){
   dlm::dlmFilter(y, object, debug=TRUE, simplify=simplify)
 } 
 
 
 
 
+## summary.dlmFiltered <- function(object, ...){
 
-## ####################################################################
 
-#' @description A wrapper for dlmFilter
-#'
-#' Not many details for now
-#' @title Filter a dlm
-#' @param object Result from calling dlmXMLE or dlmXOpt
-## #' @param debug FALSE
-#' @param simplify FALSE
-#' @return Same as when calling dlmFilter
-#' @author Søren Højsgaard
- 
-## ####################################################################
+    
+## }
 
 #' @export
-dlmXFilter <- function (object, simplify = FALSE){
-  dlm::dlmFilter(object$y, object$mod, debug=TRUE, simplify=simplify)
-} 
+print.dlm <- function(x, ...){
+    cat("dynamic linear model (dlm)\n")
+    
+    invisible(x)   
+}
+
+
+## #' @export
+## time_varying <- function(object, ...){
+##     tvcn <- c("JFF", "JV", "JGG", "JW")
+##     tvc  <- object[tvcn]
+##     mm   <- !sapply(tvc, is.null)
+##     uu   <- c("F","V","G","W")[mm]
+##     uu
+## }
+    
+
+
+#' @export
+summary.dlm <- function(object, ...){
+
+
+    cat("dynamic linear model (dlm)\n")
+    cat("V | F: \n")
+    print(cbind(V(object), FF(object)))
+
+    cat("W | G: \n")
+    print(cbind(W(object), GG(object)))
+
+    tvcn <- c("JFF", "JV", "JGG", "JW")
+    tvc  <- object[tvcn]
+    mm   <- !sapply(tvc, is.null)
+    uu   <- c("F","V","G","W")[mm]
+    
+    if (length(uu)==0) cat("Constant model\n")
+    else cat("Time varying components:", toString(uu), "\n")
+
+    if (length(uu)>0){
+        zz <- tvc[mm]
+        mapply(function(n, x){
+            cat(n, ":\n")
+            print(x)
+        }, names(zz), zz )
+    }
+    
+    invisible(object)
+}
+
+
 
 
 

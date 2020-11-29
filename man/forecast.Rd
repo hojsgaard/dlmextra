@@ -2,16 +2,16 @@
 % Please edit documentation in R/dlmxforecast.R
 \name{forecast}
 \alias{forecast}
-\alias{dlmXForecast}
-\alias{dlmXForecast.dlm}
-\alias{dlmXForecast.dlmFiltered}
+\alias{dlmxForecast}
+\alias{dlmxForecast.dlm}
+\alias{dlmxForecast.dlmFiltered}
 \title{Forecast for dlm and dlmFiltered objects}
 \usage{
-dlmXForecast(object, nAhead = 1, offset = 0)
+dlmxForecast(object, nAhead = 1, offset = 0)
 
-\method{dlmXForecast}{dlm}(object, nAhead = 1, offset = 0)
+\method{dlmxForecast}{dlm}(object, nAhead = 1, offset = 0)
 
-\method{dlmXForecast}{dlmFiltered}(object, nAhead = 1, offset = 0)
+\method{dlmxForecast}{dlmFiltered}(object, nAhead = 1, offset = 0)
 }
 \arguments{
 \item{object}{dlm or dlmFiltered objects}

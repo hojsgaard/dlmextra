@@ -4,37 +4,64 @@
 \alias{extract-dlm}
 \alias{getdlm}
 \alias{getdlm.dlm}
-\alias{getFF}
-\alias{getGG}
-\alias{getVV}
-\alias{getWW}
-\title{Extractor for dlm objects}
+\alias{FFeval}
+\alias{GGeval}
+\alias{Veval}
+\alias{Weval}
+\alias{extract-dlmFiltered}
+\alias{getdlm.dlmFiltered}
+\alias{mm}
+\alias{mm.dlmFiltered}
+\alias{aa}
+\alias{CC}
+\alias{RR}
+\title{Extractor for dlm and dlmFiltered objects}
 \usage{
-getdlm(object, slot, i)
+getdlm(object, name, select = TRUE)
 
-\method{getdlm}{dlm}(object, slot, i)
+\method{getdlm}{dlm}(object, name, select)
 
-getFF(object, i)
+FFeval(object, select)
 
-getGG(object, i)
+GGeval(object, select)
 
-getVV(object, i)
+Veval(object, select)
 
-getWW(object, i)
+Weval(object, select)
+
+getdlm(object, name, select = TRUE)
+
+\method{getdlm}{dlmFiltered}(object, name, select = TRUE)
+
+mm(object, select = TRUE)
+
+\method{mm}{dlmFiltered}(object, select = TRUE)
+
+aa(object, select = TRUE)
+
+CC(object, select = TRUE)
+
+RR(object, select = TRUE)
 }
 \arguments{
-\item{object}{dlm object}
+\item{object}{A dlmFiltered object.}
 
-\item{slot}{Which slot in the object to select.}
+\item{name}{Which name in the object to select.}
 
-\item{i}{Row in X matrix}
+\item{select}{Which element to select.}
 }
 \value{
 The relevant result
+
+The relevant result
 }
 \description{
-Extractor for dlm objects
+Extractor for dlm and dlmFiltered objects
+
+Extractor for dlmFiltered objects
 }
 \author{
+Søren Højsgaard
+
 Søren Højsgaard
 }

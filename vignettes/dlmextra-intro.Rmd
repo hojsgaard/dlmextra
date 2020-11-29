@@ -22,7 +22,12 @@ knitr::opts_chunk$set(echo = TRUE)
 The `dlmextra` package (located at
 [https://github.com/hojsgaard/dlmextra]) enhances the `dlm` package
 (see [https://cran.r-project.org/web/packages/dlm/index.html]) by
-providing extra functionality.
+providing extra functionality. Functions from `dlm` are indicated with
+`::`, e.g. `dlm::dlmModReg`. Functions from `dlmextra` are not
+indicated in any special way. Thereby it should be possible to see
+what comes from where.
+Most issues adressed in `dlmextra` relate to models with time varying
+components. Please do report back on problems with `dlmextra`.
 
 ```{r, message=FALSE}
 library(dlmextra)
@@ -32,13 +37,19 @@ library(ggplot2)
 # A small example: A dynamic regression model
 
 ```{r}
-tt   <- seq(1, 6, by=1)
+tt   <- seq(1, 10, by=1)
 beta <- c(1, -.2)
 dat  <- data.frame(tt=tt)
 M    <- model.matrix(~ tt, data=dat)
 dat$mu <- M %*% beta
 set.seed(112021)
 dat$y0 <- as.numeric(dat$mu) + rnorm(length(dat$mu), sd=.5)
+```
+
+We have
+```{r}
+head(dat)
+head(M)
 ```
 
 ```{r}
@@ -49,119 +60,229 @@ pt0
 
 ## Dynamic regression model in `dlm`
 
-```{r}
-mm1 <- dlmModReg(M, addInt=FALSE, m0=beta, C0=diag(1,2), dW=rep(.1, 2))
-mm1
-```
-
-The model is
-
+A dynamic regression model has the form
 \begin{align}
  y_t &= F_t \theta_t + v_t;          & v_t \sim N(0, V_t)\\
  \theta_t &= G_t \theta_{t-1} + w_t; & w_t \sim N(0,W_t)
 \end{align}
-
-As the model is specified in `dlmModReg` 
-the  matrix $F_t=[1, t]$ is really time
-dependent whereas $G_t$, $V_t$ and $W_t$ are not ($G_t=I$). 
-The $F_t$ matrix is
-constructed on the fly on the basis of the model matrix:
+where the matrix $F_t=[1, t]$ is
+time dependent whereas $G_t$, $V_t$ and $W_t$ are not
+(notice that $G_t=I$). 
 
 ```{r}
-getFF(mm1, 1)
-getFF(mm1, 2)
+drm1 <- dlm::dlmModReg(M, addInt=FALSE, m0=beta, C0=diag(1,2), dW=rep(.1, 2))
+drm1
 ```
 
+Several issues arise with models containing time dependent
+components. (These issues do not appear if a model only contains
+constant components).
+
+## Accessing a model object
+
+The $F_t$ matrix is constructed on the fly on the basis of
+the model matrix and the specifications in `JFF`:
+
+```{r}
+dlm::FF(drm1)
+dlm::JFF(drm1)
+FFeval(drm1, 4) ## or
+getdlm(drm1, "F", 4)
+```
+
+# Filtering
 
 Imagine that we have only seen the first observations:
 ```{r}
-nseen  <- 3
+nseen  <- 4
 dat$y <- dat$y0
 dat$y[-(1:nseen)] <- NA
 dat$y
 ```
 
-We have
-```{r}
-dat
-M
-```
-
-
-## Filtering
-
 Filtering works because the time varying components can be constructed
 on the fly because the number of rows in the design matrix is at least
-the same as the length of $y$ (including the missing values in $y$).
+the same as the length of $y$ (including the missing values in
+$y$). We have seen this done above for $F_t$.
+
 Notice that there are two underlying engines for the
 filtering. Fortunately we get same results, but that is not always the
 case as we shall see below.
 
 ```{r}
-fm1C <- dlmFilter(dat$y, mm1)          ## Filtering based on C code; default
-fm1R <- dlmFilter(dat$y, mm1, debug=T) ## Filtering based on R code
+fm1C <- dlm::dlmFilter(dat$y, drm1)          ## Filtering based on C code; default
+fm1R <- dlm::dlmFilter(dat$y, drm1, debug=T) ## Filtering based on R code
 fm1C$f
 fm1R$f
-## FIXME: summary(fm1) would be nice
 ```
 
 
-### Important issue: Filtering a shorter vector
+## Filtering vectors that are "too long" or "too short"
 
-Consider filtering a shorter $y$ vector:
+Consider filtering data vector $y$ vector with fewer elements than the
+number of rows in the model matrix:
 
 ```{r}
-yshort <- dat$y[1:4]
-fm2C <- dlmFilter(yshort, mm1)          ## Using C code
-fm2R <- dlmFilter(yshort, mm1, debug=T) ## Using R code
+yshort <- dat$y[1:5]
+ylong <- c(dat$y, NA, NA)
+```
+
+
+```{r}
+fm2C <- dlm::dlmFilter(yshort, drm1)          ## Using C code
+fm2R <- dlm::dlmFilter(yshort, drm1, debug=T) ## Using R code
 fm2C$f
 fm2R$f
 ```
-
 When filtering is based on R code, we get results consistent with what
 happened when filtering the full $y$ vector; with C code we get
 something else. This behaviour does not seem to be documented anywhere.
 
-### Important issue: Filtering a longer vector
-
-A related issue is the following: Filtering a $y$ vector longer than
-the number of rows in the design matrix should give an error in a
-non-constant model. (There is no information in the supplied model
-matrix for generating $F_t$ for $t>6$). The R based engine correctly
-captures the problem; the C based engine does not. This behaviour does
-not seem to be documented anywhere.
+Next consider filtering a vector with more elements than the number of
+rows in the model matrix.  (There is no information in the supplied
+model matrix for generating $F_t$ for $t>6$). The R based engine
+correctly captures the problem; the C based engine does not. This
+behaviour does not seem to be documented anywhere.
 
 ```{r}
-ylong <- c(dat$y, NA, NA)
-fm3C <- try(dlmFilter(ylong, mm1))          ## Using C code
-fm3R <- try(dlmFilter(ylong, mm1, debug=T)) ## Using R code
-fm3C %>% lapply(head, 3)
+fm3C <- try(dlm::dlmFilter(ylong, drm1))          ## Using C code
+fm3R <- try(dlm::dlmFilter(ylong, drm1, debug=T)) ## Using R code
+names(fm3C)
 fm3R
 ```
 
-
-## Important issue: Recommendation
+## Recommendation: use `dlmxFilter`
 
 Based on these findings, I recommend to stay on the safe side and
-always set `debug=T`. (Fast C code is nice; correct results
-are nicer.)
+always set `debug=T`. (Fast C code is nice; correct results are
+nicer.) In `dlmextra`, the `dlmxFilter` function only uses the R code,
+so sticking to that function should make you safe.
 
-```{r}
-## FIXME: Should handle this in debug=T-issue in dlmextra
-```
 
 ## Accessing a filtered object
 
 ```{r}
-sel <- 1:6
-getdlmf(fm1R, "m", select=sel)
-getdlmf(fm1R, "C", select=sel)
-getdlmf(fm1R, "a", select=sel)
-getdlmf(fm1R, "R", select=sel)
-## FIXME: diagCC and diagRR would be nice
+names(fm1R)
 ```
 
-## Filtering and forecasting
+As shown above, a filtered object contains data `y`, the model object
+`mod` itself, the slots `m`, `a`, `f` (refer to the book for these
+quantities) but not `R` and `C`. However, these quantities can be
+constructed / extracted as:
+
+```{r}
+sel <- 1:2
+getdlm(fm1R, "m", select=sel)
+getdlm(fm1R, "sdC", select=sel) # Sqrt of diagonals of C
+getdlm(fm1R, "a", select=sel)
+getdlm(fm1R, "sdR", select=sel) # Sqrt of diagonals of R
+getdlm(fm1R, "f", sel=sel)
+```
+
+List of matrices with $G$ and $R$:
+```{r}
+getdlm(fm1R, "C", select=sel)
+getdlm(fm1R, "R", select=sel)
+```
+
+
+# Estimation
+
+The issue about using R or C code also arises in connection with
+estimation. Say we want to estimate the unknown variances:
+
+```{r}
+V(drm1)
+W(drm1)
+```
+
+The way ahead is along these lines. Notice that the number of rows in
+the model matrix is the same as the number of elements in $y$. Notice
+that there are two underlying engines for estimation. Fortunately
+we get same results, but that is not always the case as we shall see
+below.
+
+
+```{r}
+build_obj <- function(p, obj){
+    V(obj) <- exp(p[1])
+    diag(W(obj)) <- exp(p[2:3])
+    obj
+}
+
+p <- c(0.1, 0.2, 0.3)
+
+fit1C <- dlmMLE(dat$y, parm=p, build=build_obj, obj=drm1)          ## Using C code
+fit1R <- dlmMLE(dat$y, parm=p, build=build_obj, obj=drm1, debug=T) ## Using R code
+fit1C$par
+fit1R$par
+```
+
+## Estimation with vectors that are "too long" or "too short"
+
+Consider estimation with at data vector $y$ vector with fewer elements than the
+number of rows in the model matrix:
+
+```{r}
+fit2C <- dlmMLE(yshort, parm=p, build=build_obj, obj=drm1) ## Wrong!
+fit2R <- dlmMLE(yshort, parm=p, build=build_obj, obj=drm1, debug=T)
+fit2C$par
+fit2R$par
+```
+
+When estimation is based on R code, we get results consistent with what
+happened when estimating with the full y vector; with C code we get
+something else. This behaviour does not seem to be documented
+anywhere.
+
+Next consider estimation with a vector with more elements than the number of
+rows in the model matrix.  (There is no information in the supplied
+model matrix for generating $F_t$ for $t>6$). The R based engine
+correctly captures the problem; the C based engine does not. This
+behaviour does not seem to be documented anywhere.
+
+
+```{r}
+fit3C <- try(dlmMLE(ylong, parm=p, build=build_obj, obj=drm1))
+fit3R <- try(dlmMLE(ylong, parm=p, build=build_obj, obj=drm1, debug=T))
+
+fit3C$par
+fit3R
+```
+
+## Recommendation: use `dlmxMLE`
+
+Based on these findings, I recommend to stay on the safe side and
+always set `debug=T`. (Fast C code is nice; correct results are
+nicer.) In `dlmextra`, the `dlmxMLE` function only uses the R code, so
+sticking to that function should make you safe. The `dlmxMLE` function
+also check that dimension of $y$ and the model matrix match.
+
+One feature of `dlmxMLE` is that the function returns the model object
+with the estimated parameters.
+
+```{r}
+xx <- dlmxMLE(yshort, parm=p, build=build_obj, obj=drm1)
+xx$par
+exp(xx$par)
+zz <- xx$mod
+V(zz)
+W(zz)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Forecasting
 
 The `dlm::dlmForecast` function does not work with non-constant
 models, i.e. models where $F$, $G$, $V$ or $W$ are vary with time. The
@@ -172,18 +293,20 @@ compenent needs to be constructed on the fly as explained above.
 try(dlm::dlmForecast(fm1R, nAhead=length(tt) - nseen))
 ```
 
+## Recommendation: use `dlmxForecast`
+
 However, forecasting is nothing but filtering with missing
 data. Hence, as long as the model matrix in the model object has
 "enough rows" for constructing time dependent quantities we are fine
 and can make the necessary computations as illustrated above:
 
 ```{r, eval=T}
-v  <- dlmXForecast(fm1R, nAhead=length(tt)-nseen, offset=nseen)
+v  <- dlmxForecast(fm1R, nAhead=length(tt)-nseen, offset=nseen)
 ci <- confint(v)
 ci
 ```
 
-## A couple of nice plots
+# A couple of nice plots
 
 Now we can plot with prediction intervals etc.
 ```{r}
@@ -194,13 +317,3 @@ pt1 <- pt0 +
     geom_errorbar(aes(x=tt, ymin=lwr, ymax=upr), data=ci)
 pt1
 ```
-
-
-
-
-
-
-
-
-
-

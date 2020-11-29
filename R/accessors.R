@@ -1,3 +1,82 @@
+## ####################################################################
+
+##' @description Extractor for dlm and dlmFiltered objects
+##' @name extract-dlm
+##' @title  Extractor for dlm and dlmFiltered objects
+##' @param  object dlm object
+##' @param  name Which name in the object to select.
+##' @param  select Row in X matrix 
+##' @return The relevant result
+##' @author Søren Højsgaard
+##'
+## ####################################################################
+
+#' @rdname extract-dlm
+#' @export 
+getdlm <- function(object, name, select){
+    UseMethod("getdlm")
+}
+
+#' @rdname extract-dlm
+#' @export 
+getdlm.dlm <- function(object, name, select){
+    if (!is.numeric(select) || length(select) > 1) stop("invalid index select\n")
+    switch(name,
+           "FF"=,"F"={FFeval(object, select)},
+           "GG"=,"G"={GGeval(object, select)},
+           "VV"=,"V"={Veval(object, select)},
+           "WW"=,"W"={Weval(object, select)}
+           ) 
+}
+
+#' @rdname extract-dlm
+#' @export 
+FFeval <- function(object, select){UseMethod("FFeval")}
+
+#' @rdname extract-dlm
+#' @export 
+GGeval <- function(object, select){UseMethod("GGeval")}
+
+#' @rdname extract-dlm
+#' @export 
+Veval <- function(object, select){UseMethod("Veval")}
+
+#' @rdname extract-dlm
+#' @export 
+Weval <- function(object, select){UseMethod("Weval")}
+
+
+#' @export 
+FFeval.dlm <- function(object, select){
+    if (is.null(JFF(object))) return(FF(object))
+    FFF <- FF(object)    
+    JFFF <- JFF(object)
+    FFF[JFFF !=0] <- X(object)[select,]
+    FFF
+}
+
+#' @export 
+GGeval.dlm <- function(object, select){
+    if (is.null(JGG(object))) return(GG(object))
+    GGG <- GG(object)
+    JGGG <- JGG(object)
+    GGG[JGGG !=0] <- X(object)[select,]
+    GGG
+}
+
+#' @export 
+Veval.dlm <- function(object, select){
+    if (is.null(JV(object))) return(V(object))
+}
+
+#' @export 
+Weval.dlm <- function(object, select){
+    if (is.null(JW(object))) return(W(object))
+}
+
+
+
+
 
 pickr  <- function(m, select, drop=TRUE){
     ## Select rows from matrix / dataframe and entries from list / vector
@@ -14,66 +93,72 @@ pickr  <- function(m, select, drop=TRUE){
 ##' 
 ##' @title Extractor for dlmFiltered objects
 ##' @param object A dlmFiltered object.
-##' @param slot Which slot in the object to select.
+##' @param name Which name in the object to select.
 ##' @param select Which element to select.
 ##' @return The relevant result
 ##' @author Søren Højsgaard
 
 ## ####################################################################
 
-#' @rdname extract-dlmFiltered
+#' @rdname extract-dlm
 #' @export 
-getdlmf <- function(object, slot, select=TRUE){
-    UseMethod("getdlmf")
+getdlm <- function(object, name, select=TRUE){
+    UseMethod("getdlm")
 }
 
-#' @rdname extract-dlmFiltered
+#' @rdname extract-dlm
 #' @export 
-getdlmf.dlmFiltered <- function(object, slot, select=TRUE){
-    switch(slot,
+getdlm.dlmFiltered <- function(object, name, select=TRUE){
+    switch(name,
            "mm"=,"m"={mm(object, select=select)},
            "aa"=,"a"={aa(object, select=select)},
            "CC"=,"C"={CC(object, select=select)},
-           "RR"=,"R"={RR(object, select=select)}
+           "RR"=,"R"={RR(object, select=select)},
+           "sdRR"=,"sdR"={
+               x <- lapply(RR(object, select=select), diag)
+               sqrt(do.call(rbind, x))
+           },
+           "sdCC"=,"sdC"={
+               x <- lapply(CC(object, select=select), diag)
+               sqrt(do.call(rbind, x))
+           },
+           "ff"=,"f"={object$f[select]},
+           "yy"=,"y"={object$y[select]},
+           "model"=,"mod"={object$mod}           
            )
 }
 
-## #' @rdname extract-dlmFiltered
-## #' @export 
-## mm <- function(object, select=TRUE){UseMethod("mm")}
+#' @rdname extract-dlm
+#' @export 
+mm <- function(object, select=TRUE){UseMethod("mm")}
 
-## #' @rdname extract-dlmFiltered
-## #' @export 
-## mm.dlmFiltered
-mm <- function(object, select=TRUE){
+#' @rdname extract-dlm
+#' @export 
+mm.dlmFiltered <- function(object, select=TRUE){
     if (is.character(select)){
         if (identical(select, "last")) select <- NROW(object$m)
     }
     pickr(object$m, select, drop=TRUE)
 }
 
-## #' @rdname extract-dlmFiltered
-## #' @export 
-## aa <- function(object, select=TRUE){UseMethod("aa")}
+#' @rdname extract-dlm
+#' @export 
+aa <- function(object, select=TRUE){UseMethod("aa")}
 
-## ' @rdname extract-dlmFiltered
-## ' @export 
-## aa.dlmFiltered
-aa <- function(object, select=TRUE){
+#' @export 
+aa.dlmFiltered <- function(object, select=TRUE){
     if (is.character(select)){
         if (identical(select, "last")) select <- NROW(object$a)
     }
     pickr(object$a, select, drop=TRUE)
 }
 
-## #' @rdname extract-dlmFiltered
-## #' @export
-## CC <- function(object, select=TRUE){UseMethod("CC")}
+#' @rdname extract-dlm
+#' @export
+CC <- function(object, select=TRUE){UseMethod("CC")}
 
-## #' @rdname extract-dlmFiltered
-## #' @export 
-## CC.dlmFiltered
-CC <- function(object, select=TRUE){
+#' @export 
+CC.dlmFiltered <- function(object, select=TRUE){
     if (is.character(select)){
         if (identical(select, "last")) select <- NROW(object$U.C)
     }
@@ -83,14 +168,12 @@ CC <- function(object, select=TRUE){
     if (is.numeric(select) && length(select) == 1) out[[1]] else out
 }
 
-## #' @rdname extract-dlmFiltered
-## #' @export 
-## RR <- function(object, select=TRUE){UseMethod("RR")}
+#' @rdname extract-dlm
+#' @export 
+RR <- function(object, select=TRUE){UseMethod("RR")}
 
-## #' @rdname extract-dlmFiltered
-## #' @export 
-## RR.dlmFiltered
-RR <- function(object, select=TRUE){
+#' @export 
+RR.dlmFiltered <- function(object, select=TRUE){
     if (is.character(select)){
         if (identical(select, "last")) select <- NROW(object$U.R)
     }
@@ -101,65 +184,3 @@ RR <- function(object, select=TRUE){
 }
 
 
-## ####################################################################
-
-##' @description Extractor for dlm objects
-##' @name extract-dlm
-##' @title  Extractor for dlm objects
-##' @param  object dlm object
-##' @param slot Which slot in the object to select.
-##' @param  i Row in X matrix 
-##' @return The relevant result
-##' @author Søren Højsgaard
-##'
-## ####################################################################
-
-#' @rdname extract-dlm
-#' @export 
-getdlm <- function(object, slot, i){
-    UseMethod("getdlm")
-}
-
-#' @rdname extract-dlm
-#' @export 
-getdlm.dlm <- function(object, slot, i){
-    if (!is.numeric(i) || length(i) > 1) stop("invalid index i\n")
-    switch(slot,
-           "FF"=,"F"={getFF(object, i)},
-           "GG"=,"G"={getGG(object, i)},
-           "VV"=,"V"={getGG(object, i)},
-           "WW"=,"W"={getWW(object, i)}
-           ) 
-}
-
-#' @rdname extract-dlm
-#' @export 
-getFF <- function(object, i){
-    if (is.null(JFF(object))) return(FF(object))
-    FFF <- FF(object)    
-    JFFF <- JFF(object)
-    FFF[JFFF !=0] <- X(object)[i,]
-    FFF
-}
-
-#' @rdname extract-dlm
-#' @export 
-getGG <- function(object, i){
-    if (is.null(JGG(object))) return(GG(object))
-    GGG <- GG(object)
-    JGGG <- JGG(object)
-    GGG[JGGG !=0] <- X(object)[i,]
-    GGG
-}
-
-#' @rdname extract-dlm
-#' @export 
-getVV <- function(object, i){
-    if (is.null(JV(object))) return(V(object))
-}
-
-#' @rdname extract-dlm
-#' @export 
-getWW <- function(object, i){
-    if (is.null(JW(object))) return(W(object))
-}

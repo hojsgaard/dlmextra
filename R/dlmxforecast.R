@@ -15,14 +15,14 @@
 
 #' @rdname forecast
 #' @export
-dlmXForecast <- function(object, nAhead=1, offset=0){
-    UseMethod("dlmXForecast")    
+dlmxForecast <- function(object, nAhead=1, offset=0){
+    UseMethod("dlmxForecast")    
 }
 
 #' @rdname forecast
 #' @export
-dlmXForecast.dlm <- function(object, nAhead=1, offset=0){
-    cat("dlmXForecast.dlm\n")
+dlmxForecast.dlm <- function(object, nAhead=1, offset=0){
+    ##cat("dlmxForecast.dlm\n")
     offset <- 0       ## Overwrite offset
     m.start <- object$m0
     C.start <- object$C0
@@ -31,10 +31,10 @@ dlmXForecast.dlm <- function(object, nAhead=1, offset=0){
 
 #' @rdname forecast
 #' @export
-dlmXForecast.dlmFiltered <- function(object, nAhead=1, offset=0){
-    cat("dlmXForecast.dlmFiltered\n")
+dlmxForecast.dlmFiltered <- function(object, nAhead=1, offset=0){
+    cat("dlmxForecast.dlmFiltered\n")
     if (offset == 0)
-        return(dlmXForecast(object$mod, nAhead=nAhead, offset=offset))
+        return(dlmxForecast(object$mod, nAhead=nAhead, offset=offset))
 
     m.start <- mm(object)[offset + 1,]
     C.start <- CC(object)[[offset + 1]]        
@@ -54,10 +54,10 @@ forecast_worker <- function(mod, m.start, C.start, nAhead, offset){
     Q <- vector("list", nAhead)
     
     for (it in 1:nAhead) {
-        GGG <- getGG(mod, offset + it)
-        WWW <- getWW(mod, offset + it)
-        FFF <- getFF(mod, offset + it)
-        VVV <- getVV(mod, offset + it)
+        GGG <- GGeval(mod, offset + it)
+        FFF <- FFeval(mod, offset + it)
+        WWW <- Weval(mod, offset + it)
+        VVV <- Veval(mod, offset + it)
         a[it + 1, ] <- GGG %*% a[it, ]
         R[[it + 1]] <- GGG %*% R[[it]] %*% t(GGG) + WWW
         f[it, ] <- FFF %*% a[it + 1, ]
@@ -72,7 +72,7 @@ forecast_worker <- function(mod, m.start, C.start, nAhead, offset){
     ## fore$f # forecasted observations
     ## fore$Q # forecasted observations variances
 
-    class(fore) <- "dlmXForecast_class"
+    class(fore) <- "dlmxForecast_class"
     fore
 }
 
@@ -84,7 +84,7 @@ forecast_worker <- function(mod, m.start, C.start, nAhead, offset){
 
 
 #' @export
-summary.dlmXForecast_class <- function(object, ...){
+summary.dlmxForecast_class <- function(object, ...){
 
     Q.diag <- do.call(rbind, lapply(object$Q, diag))
     R.diag <- do.call(rbind, lapply(object$R, diag))
@@ -98,7 +98,7 @@ summary.dlmXForecast_class <- function(object, ...){
 
 #' @importFrom stats confint
 #' @export
-confint.dlmXForecast_class <- function (object, parm, level = 0.95, ...){
+confint.dlmxForecast_class <- function (object, parm, level = 0.95, ...){
     ## Note: parm argument is ignored
     a <- (1 - level)/2
     a <- c(a, 1 - a)    
@@ -109,3 +109,7 @@ confint.dlmXForecast_class <- function (object, parm, level = 0.95, ...){
                upr=object$f + fac[2] * sqrt(Q.diag),
                xrow=object$xrow)
 }
+
+
+
+
