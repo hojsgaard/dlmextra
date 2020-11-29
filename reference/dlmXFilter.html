@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Filter a dlm — dlmXFilter • dlmextra</title>
+<title>Filter a dlm — dlmxFilter • dlmextra</title>
 
 
 <!-- jquery -->
@@ -39,9 +39,11 @@
 
 
 
-<meta property="og:title" content="Filter a dlm — dlmXFilter" />
+<meta property="og:title" content="Filter a dlm — dlmxFilter" />
 <meta property="og:description" content="A wrapper for dlmFilter
-Not many details for now" />
+Not many details for now
+A wrapper for dlmFilter but restricted to using R code
+    in the filter." />
 
 
 
@@ -118,22 +120,32 @@ Not many details for now" />
     <div class="page-header">
     <h1>Filter a dlm</h1>
     
-    <div class="hidden name"><code>dlmXFilter.Rd</code></div>
+    <div class="hidden name"><code>dlmxFilter.Rd</code></div>
     </div>
 
     <div class="ref-description">
     <p>A wrapper for dlmFilter</p>
 <p>Not many details for now</p>
+<p>A wrapper for dlmFilter but restricted to using R code
+    in the filter.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>dlmXFilter</span><span class='op'>(</span><span class='va'>object</span>, simplify <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>dlmxFilter</span><span class='op'>(</span><span class='va'>y</span>, <span class='va'>object</span>, simplify <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
+      <th>y</th>
+      <td><p>The data. ‘y’ can be a vector, a matrix, a univariate or
+multivariate time series.</p></td>
+    </tr>
+    <tr>
       <th>object</th>
-      <td><p>Result from calling dlmXMLE or dlmXOpt</p></td>
+      <td><p>An object of class ‘dlm’, or a list with components ‘m0’,
+‘C0’, ‘FF’, ‘V’, ‘GG’, ‘W’, and optionally ‘JFF’, ‘JV’,
+‘JGG’, ‘JW’, and ‘X’, defining the model and the parameters
+of the prior distribution.</p></td>
     </tr>
     <tr>
       <th>simplify</th>
@@ -144,9 +156,11 @@ Not many details for now" />
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>Same as when calling dlmFilter</p>
+<p>Same as when calling dlmFilter</p>
     <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
 
     <p>Søren Højsgaard</p>
+<p>Søren Højsgaard</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

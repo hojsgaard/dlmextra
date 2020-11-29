@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Extractor for dlm objects — extract-dlm • dlmextra</title>
+<title>Extractor for dlm and dlmFiltered objects — extract-dlm • dlmextra</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,9 @@
 
 
 
-<meta property="og:title" content="Extractor for dlm objects — extract-dlm" />
-<meta property="og:description" content="Extractor for dlm objects" />
+<meta property="og:title" content="Extractor for dlm and dlmFiltered objects — extract-dlm" />
+<meta property="og:description" content="Extractor for dlm and dlmFiltered objects
+Extractor for dlmFiltered objects" />
 
 
 
@@ -115,51 +116,70 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Extractor for dlm objects</h1>
+    <h1>Extractor for dlm and dlmFiltered objects</h1>
     
     <div class="hidden name"><code>extract-dlm.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Extractor for dlm objects</p>
+    <p>Extractor for dlm and dlmFiltered objects</p>
+<p>Extractor for dlmFiltered objects</p>
     </div>
 
-    <pre class="usage"><span class='fu'>getdlm</span><span class='op'>(</span><span class='va'>object</span>, <span class='va'>slot</span>, <span class='va'>i</span><span class='op'>)</span>
+    <pre class="usage"><span class='fu'>getdlm</span><span class='op'>(</span><span class='va'>object</span>, <span class='va'>name</span>, select <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
 
 <span class='co'># S3 method for dlm</span>
-<span class='fu'>getdlm</span><span class='op'>(</span><span class='va'>object</span>, <span class='va'>slot</span>, <span class='va'>i</span><span class='op'>)</span>
+<span class='fu'>getdlm</span><span class='op'>(</span><span class='va'>object</span>, <span class='va'>name</span>, <span class='va'>select</span><span class='op'>)</span>
 
-<span class='fu'>getFF</span><span class='op'>(</span><span class='va'>object</span>, <span class='va'>i</span><span class='op'>)</span>
+<span class='fu'>FFeval</span><span class='op'>(</span><span class='va'>object</span>, <span class='va'>select</span><span class='op'>)</span>
 
-<span class='fu'>getGG</span><span class='op'>(</span><span class='va'>object</span>, <span class='va'>i</span><span class='op'>)</span>
+<span class='fu'>GGeval</span><span class='op'>(</span><span class='va'>object</span>, <span class='va'>select</span><span class='op'>)</span>
 
-<span class='fu'>getVV</span><span class='op'>(</span><span class='va'>object</span>, <span class='va'>i</span><span class='op'>)</span>
+<span class='fu'>Veval</span><span class='op'>(</span><span class='va'>object</span>, <span class='va'>select</span><span class='op'>)</span>
 
-<span class='fu'>getWW</span><span class='op'>(</span><span class='va'>object</span>, <span class='va'>i</span><span class='op'>)</span></pre>
+<span class='fu'>Weval</span><span class='op'>(</span><span class='va'>object</span>, <span class='va'>select</span><span class='op'>)</span>
+
+<span class='fu'>getdlm</span><span class='op'>(</span><span class='va'>object</span>, <span class='va'>name</span>, select <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+
+<span class='co'># S3 method for dlmFiltered</span>
+<span class='fu'>getdlm</span><span class='op'>(</span><span class='va'>object</span>, <span class='va'>name</span>, select <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+
+<span class='fu'>mm</span><span class='op'>(</span><span class='va'>object</span>, select <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+
+<span class='co'># S3 method for dlmFiltered</span>
+<span class='fu'>mm</span><span class='op'>(</span><span class='va'>object</span>, select <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+
+<span class='fu'>aa</span><span class='op'>(</span><span class='va'>object</span>, select <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+
+<span class='fu'>CC</span><span class='op'>(</span><span class='va'>object</span>, select <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+
+<span class='fu'>RR</span><span class='op'>(</span><span class='va'>object</span>, select <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>object</th>
-      <td><p>dlm object</p></td>
+      <td><p>A dlmFiltered object.</p></td>
     </tr>
     <tr>
-      <th>slot</th>
-      <td><p>Which slot in the object to select.</p></td>
+      <th>name</th>
+      <td><p>Which name in the object to select.</p></td>
     </tr>
     <tr>
-      <th>i</th>
-      <td><p>Row in X matrix</p></td>
+      <th>select</th>
+      <td><p>Which element to select.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>The relevant result</p>
+<p>The relevant result</p>
     <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
 
     <p>Søren Højsgaard</p>
+<p>Søren Højsgaard</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

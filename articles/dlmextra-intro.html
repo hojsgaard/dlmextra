@@ -75,7 +75,7 @@
       <h1 data-toc-skip>dlmextra - introduction</h1>
                         <h4 class="author">Søren Højsgaard</h4>
             
-            <h4 class="date">Wed Nov 25 13:25:18 2020</h4>
+            <h4 class="date">Sun Nov 29 23:46:37 2020</h4>
       
       
       <div class="hidden name"><code>dlmextra-intro.Rmd</code></div>
@@ -87,7 +87,7 @@
 <div id="introduction" class="section level1">
 <h1 class="hasAnchor">
 <a href="#introduction" class="anchor"></a>Introduction</h1>
-<p>The <code>dlmextra</code> package (located at [<a href="https://github.com/hojsgaard/dlmextra" class="uri">https://github.com/hojsgaard/dlmextra</a>]) enhances the <code>dlm</code> package (see [<a href="https://cran.r-project.org/web/packages/dlm/index.html" class="uri">https://cran.r-project.org/web/packages/dlm/index.html</a>]) by providing extra functionality.</p>
+<p>The <code>dlmextra</code> package (located at [<a href="https://github.com/hojsgaard/dlmextra" class="uri">https://github.com/hojsgaard/dlmextra</a>]) enhances the <code>dlm</code> package (see [<a href="https://cran.r-project.org/web/packages/dlm/index.html" class="uri">https://cran.r-project.org/web/packages/dlm/index.html</a>]) by providing extra functionality. Functions from <code>dlm</code> are indicated with <code><a href="https://rdrr.io/r/base/ns-dblcolon.html">::</a></code>, e.g. <code><a href="https://rdrr.io/pkg/dlm/man/dlmModReg.html">dlm::dlmModReg</a></code>. Functions from <code>dlmextra</code> are not indicated in any special way. Thereby it should be possible to see what comes from where. Most issues adressed in <code>dlmextra</code> relate to models with time varying components. Please do report back on problems with <code>dlmextra</code>.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">dlmextra</span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://ggplot2.tidyverse.org">ggplot2</a></span><span class="op">)</span></code></pre></div>
@@ -96,221 +96,120 @@
 <h1 class="hasAnchor">
 <a href="#a-small-example-a-dynamic-regression-model" class="anchor"></a>A small example: A dynamic regression model</h1>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">tt</span>   <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">6</span>, by<span class="op">=</span><span class="fl">1</span><span class="op">)</span>
+<code class="sourceCode R"><span class="va">tt</span>   <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">10</span>, by<span class="op">=</span><span class="fl">1</span><span class="op">)</span>
 <span class="va">beta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">.2</span><span class="op">)</span>
 <span class="va">dat</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>tt<span class="op">=</span><span class="va">tt</span><span class="op">)</span>
 <span class="va">M</span>    <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/model.matrix.html">model.matrix</a></span><span class="op">(</span><span class="op">~</span> <span class="va">tt</span>, data<span class="op">=</span><span class="va">dat</span><span class="op">)</span>
 <span class="va">dat</span><span class="op">$</span><span class="va">mu</span> <span class="op">&lt;-</span> <span class="va">M</span> <span class="op">%*%</span> <span class="va">beta</span>
 <span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">112021</span><span class="op">)</span>
 <span class="va">dat</span><span class="op">$</span><span class="va">y0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html">as.numeric</a></span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">mu</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">mu</span><span class="op">)</span>, sd<span class="op">=</span><span class="fl">.5</span><span class="op">)</span></code></pre></div>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">pt0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span>data<span class="op">=</span><span class="va">dat</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span><span class="va">tt</span>, <span class="va">y0</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
-    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html">geom_line</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">tt</span>, y<span class="op">=</span><span class="va">mu</span><span class="op">)</span><span class="op">)</span> 
-<span class="va">pt0</span></code></pre></div>
-<p><img src="dlmextra-intro_files/figure-html/unnamed-chunk-3-1.png" width="700"></p>
-<div id="dynamic-regression-model-in-dlm" class="section level2">
-<h2 class="hasAnchor">
-<a href="#dynamic-regression-model-in-dlm" class="anchor"></a>Dynamic regression model in <code>dlm</code>
-</h2>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">mm1</span> <span class="op">&lt;-</span> <span class="fu">dlmModReg</span><span class="op">(</span><span class="va">M</span>, addInt<span class="op">=</span><span class="cn">FALSE</span>, m0<span class="op">=</span><span class="va">beta</span>, C0<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/diag.html">diag</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span>, dW<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fl">.1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span>
-<span class="va">mm1</span></code></pre></div>
-<pre><code>## $FF
-##      [,1] [,2]
-## [1,]    1    1
-## 
-## $V
-##      [,1]
-## [1,]    1
-## 
-## $GG
-##      [,1] [,2]
-## [1,]    1    0
-## [2,]    0    1
-## 
-## $W
-##      [,1] [,2]
-## [1,]  0.1  0.0
-## [2,]  0.0  0.1
-## 
-## $JFF
-##      [,1] [,2]
-## [1,]    1    2
-## 
-## $X
-##   (Intercept) tt   
-## 1     1           1
-## 2     1           2
-##   ...              
-## 
-## $m0
-## [1]  1.0 -0.2
-## 
-## $C0
-##      [,1] [,2]
-## [1,]    1    0
-## [2,]    0    1</code></pre>
-<p>The model is</p>
-<p><span class="math display">\[\begin{align}
- y_t &amp;= F_t \theta_t + v_t;          &amp; v_t \sim N(0, V_t)\\
- \theta_t &amp;= G_t \theta_{t-1} + w_t; &amp; w_t \sim N(0,W_t)
-\end{align}\]</span></p>
-<p>As the model is specified in <code>dlmModReg</code> the matrix <span class="math inline">\(F_t=[1, t]\)</span> is really time dependent whereas <span class="math inline">\(G_t\)</span>, <span class="math inline">\(V_t\)</span> and <span class="math inline">\(W_t\)</span> are not (<span class="math inline">\(G_t=I\)</span>). The <span class="math inline">\(F_t\)</span> matrix is constructed on the fly on the basis of the model matrix:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/extract-dlm.html">getFF</a></span><span class="op">(</span><span class="va">mm1</span>, <span class="fl">1</span><span class="op">)</span></code></pre></div>
-<pre><code>##      [,1] [,2]
-## [1,]    1    1</code></pre>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/extract-dlm.html">getFF</a></span><span class="op">(</span><span class="va">mm1</span>, <span class="fl">2</span><span class="op">)</span></code></pre></div>
-<pre><code>##      [,1] [,2]
-## [1,]    1    2</code></pre>
-<p>Imagine that we have only seen the first observations:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">nseen</span>  <span class="op">&lt;-</span> <span class="fl">3</span>
-<span class="va">dat</span><span class="op">$</span><span class="va">y</span> <span class="op">&lt;-</span> <span class="va">dat</span><span class="op">$</span><span class="va">y0</span>
-<span class="va">dat</span><span class="op">$</span><span class="va">y</span><span class="op">[</span><span class="op">-</span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="va">nseen</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="cn">NA</span>
-<span class="va">dat</span><span class="op">$</span><span class="va">y</span></code></pre></div>
-<pre><code>## [1] 1.557 0.262 0.416    NA    NA    NA</code></pre>
 <p>We have</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">dat</span></code></pre></div>
-<pre><code>##   tt   mu     y0     y
-## 1  1  0.8  1.557 1.557
-## 2  2  0.6  0.262 0.262
-## 3  3  0.4  0.416 0.416
-## 4  4  0.2 -0.602    NA
-## 5  5  0.0 -0.339    NA
-## 6  6 -0.2 -0.242    NA</code></pre>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">M</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">dat</span><span class="op">)</span></code></pre></div>
+<pre><code>##   tt   mu     y0
+## 1  1  0.8  1.557
+## 2  2  0.6  0.262
+## 3  3  0.4  0.416
+## 4  4  0.2 -0.602
+## 5  5  0.0 -0.339
+## 6  6 -0.2 -0.242</code></pre>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">M</span><span class="op">)</span></code></pre></div>
 <pre><code>##   (Intercept) tt
 ## 1           1  1
 ## 2           1  2
 ## 3           1  3
 ## 4           1  4
 ## 5           1  5
-## 6           1  6
-## attr(,"assign")
-## [1] 0 1</code></pre>
-</div>
-<div id="filtering" class="section level2">
+## 6           1  6</code></pre>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">pt0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span>data<span class="op">=</span><span class="va">dat</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span><span class="va">tt</span>, <span class="va">y0</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
+    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html">geom_line</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">tt</span>, y<span class="op">=</span><span class="va">mu</span><span class="op">)</span><span class="op">)</span> 
+<span class="va">pt0</span></code></pre></div>
+<p><img src="dlmextra-intro_files/figure-html/unnamed-chunk-4-1.png" width="700"></p>
+<div id="dynamic-regression-model-in-dlm" class="section level2">
 <h2 class="hasAnchor">
-<a href="#filtering" class="anchor"></a>Filtering</h2>
-<p>Filtering works because the time varying components can be constructed on the fly because the number of rows in the design matrix is at least the same as the length of <span class="math inline">\(y\)</span> (including the missing values in <span class="math inline">\(y\)</span>). Notice that there are two underlying engines for the filtering. Fortunately we get same results, but that is not always the case as we shall see below.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">fm1C</span> <span class="op">&lt;-</span> <span class="fu">dlmFilter</span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">y</span>, <span class="va">mm1</span><span class="op">)</span>          <span class="co">## Filtering based on C code; default</span>
-<span class="va">fm1R</span> <span class="op">&lt;-</span> <span class="fu">dlmFilter</span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">y</span>, <span class="va">mm1</span>, debug<span class="op">=</span><span class="cn">T</span><span class="op">)</span> <span class="co">## Filtering based on R code</span>
-<span class="va">fm1C</span><span class="op">$</span><span class="va">f</span></code></pre></div>
-<pre><code>## [1]  0.8000  1.3803  0.2393  0.0835 -0.2023 -0.4881</code></pre>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">fm1R</span><span class="op">$</span><span class="va">f</span></code></pre></div>
-<pre><code>## [1]  0.8000  1.3803  0.2393  0.0835 -0.2023 -0.4881</code></pre>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">## FIXME: summary(fm1) would be nice</span></code></pre></div>
-<div id="important-issue-filtering-a-shorter-vector" class="section level3">
-<h3 class="hasAnchor">
-<a href="#important-issue-filtering-a-shorter-vector" class="anchor"></a>Important issue: Filtering a shorter vector</h3>
-<p>Consider filtering a shorter <span class="math inline">\(y\)</span> vector:</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">yshort</span> <span class="op">&lt;-</span> <span class="va">dat</span><span class="op">$</span><span class="va">y</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span>
-<span class="va">fm2C</span> <span class="op">&lt;-</span> <span class="fu">dlmFilter</span><span class="op">(</span><span class="va">yshort</span>, <span class="va">mm1</span><span class="op">)</span>          <span class="co">## Using C code</span>
-<span class="va">fm2R</span> <span class="op">&lt;-</span> <span class="fu">dlmFilter</span><span class="op">(</span><span class="va">yshort</span>, <span class="va">mm1</span>, debug<span class="op">=</span><span class="cn">T</span><span class="op">)</span> <span class="co">## Using R code</span>
-<span class="va">fm2C</span><span class="op">$</span><span class="va">f</span></code></pre></div>
-<pre><code>## [1] 0.800 1.320 0.823 0.389</code></pre>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">fm2R</span><span class="op">$</span><span class="va">f</span></code></pre></div>
-<pre><code>## [1] 0.8000 1.3803 0.2393 0.0835</code></pre>
-<p>When filtering is based on R code, we get results consistent with what happened when filtering the full <span class="math inline">\(y\)</span> vector; with C code we get something else. This behaviour does not seem to be documented anywhere.</p>
+<a href="#dynamic-regression-model-in-dlm" class="anchor"></a>Dynamic regression model in <code>dlm</code>
+</h2>
+<p>A dynamic regression model has the form <span class="math display">\[\begin{align}
+ y_t &amp;= F_t \theta_t + v_t;          &amp; v_t \sim N(0, V_t)\\
+ \theta_t &amp;= G_t \theta_{t-1} + w_t; &amp; w_t \sim N(0,W_t)
+\end{align}\]</span> where the matrix <span class="math inline">\(F_t=[1, t]\)</span> is time dependent whereas <span class="math inline">\(G_t\)</span>, <span class="math inline">\(V_t\)</span> and <span class="math inline">\(W_t\)</span> are not (notice that <span class="math inline">\(G_t=I\)</span>).</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">drm1</span> <span class="op">&lt;-</span> <span class="fu">dlm</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/dlm/man/dlmModReg.html">dlmModReg</a></span><span class="op">(</span><span class="va">M</span>, addInt<span class="op">=</span><span class="cn">FALSE</span>, m0<span class="op">=</span><span class="va">beta</span>, C0<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/diag.html">diag</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span>, dW<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fl">.1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span>
+<span class="va">drm1</span></code></pre></div>
+<pre><code>## dynamic linear model (dlm)</code></pre>
+<p>Several issues arise with models containing time dependent components. (These issues do not appear if a model only contains constant components).</p>
 </div>
-<div id="important-issue-filtering-a-longer-vector" class="section level3">
-<h3 class="hasAnchor">
-<a href="#important-issue-filtering-a-longer-vector" class="anchor"></a>Important issue: Filtering a longer vector</h3>
-<p>A related issue is the following: Filtering a <span class="math inline">\(y\)</span> vector longer than the number of rows in the design matrix should give an error in a non-constant model. (There is no information in the supplied model matrix for generating <span class="math inline">\(F_t\)</span> for <span class="math inline">\(t&gt;6\)</span>). The R based engine correctly captures the problem; the C based engine does not. This behaviour does not seem to be documented anywhere.</p>
+<div id="accessing-a-model-object" class="section level2">
+<h2 class="hasAnchor">
+<a href="#accessing-a-model-object" class="anchor"></a>Accessing a model object</h2>
+<p>The <span class="math inline">\(F_t\)</span> matrix is constructed on the fly on the basis of the model matrix and the specifications in <code>JFF</code>:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu">dlm</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/dlm/man/FF.html">FF</a></span><span class="op">(</span><span class="va">drm1</span><span class="op">)</span></code></pre></div>
+<pre><code>##      [,1] [,2]
+## [1,]    1    1</code></pre>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu">dlm</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/dlm/man/FF.html">JFF</a></span><span class="op">(</span><span class="va">drm1</span><span class="op">)</span></code></pre></div>
+<pre><code>##      [,1] [,2]
+## [1,]    1    2</code></pre>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/extract-dlm.html">FFeval</a></span><span class="op">(</span><span class="va">drm1</span>, <span class="fl">4</span><span class="op">)</span> <span class="co">## or</span></code></pre></div>
+<pre><code>##      [,1] [,2]
+## [1,]    1    4</code></pre>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/extract-dlm.html">getdlm</a></span><span class="op">(</span><span class="va">drm1</span>, <span class="st">"F"</span>, <span class="fl">4</span><span class="op">)</span></code></pre></div>
+<pre><code>##      [,1] [,2]
+## [1,]    1    4</code></pre>
+</div>
+</div>
+<div id="filtering" class="section level1">
+<h1 class="hasAnchor">
+<a href="#filtering" class="anchor"></a>Filtering</h1>
+<p>Imagine that we have only seen the first observations:</p>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">nseen</span>  <span class="op">&lt;-</span> <span class="fl">4</span>
+<span class="va">dat</span><span class="op">$</span><span class="va">y</span> <span class="op">&lt;-</span> <span class="va">dat</span><span class="op">$</span><span class="va">y0</span>
+<span class="va">dat</span><span class="op">$</span><span class="va">y</span><span class="op">[</span><span class="op">-</span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="va">nseen</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="cn">NA</span>
+<span class="va">dat</span><span class="op">$</span><span class="va">y</span></code></pre></div>
+<pre><code>##  [1]  1.557  0.262  0.416 -0.602     NA     NA     NA     NA     NA     NA</code></pre>
+<p>Filtering works because the time varying components can be constructed on the fly because the number of rows in the design matrix is at least the same as the length of <span class="math inline">\(y\)</span> (including the missing values in <span class="math inline">\(y\)</span>). We have seen this done above for <span class="math inline">\(F_t\)</span>.</p>
+<p>Notice that there are two underlying engines for the filtering. Fortunately we get same results, but that is not always the case as we shall see below.</p>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">fm1C</span> <span class="op">&lt;-</span> <span class="fu">dlm</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/dlm/man/dlmFilter.html">dlmFilter</a></span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">y</span>, <span class="va">drm1</span><span class="op">)</span>          <span class="co">## Filtering based on C code; default</span>
+<span class="va">fm1R</span> <span class="op">&lt;-</span> <span class="fu">dlm</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/dlm/man/dlmFilter.html">dlmFilter</a></span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">y</span>, <span class="va">drm1</span>, debug<span class="op">=</span><span class="cn">T</span><span class="op">)</span> <span class="co">## Filtering based on R code</span>
+<span class="va">fm1C</span><span class="op">$</span><span class="va">f</span></code></pre></div>
+<pre><code>##  [1]  0.8000  1.3803  0.2393  0.0835 -0.8665 -1.2950 -1.7234 -2.1519 -2.5803
+## [10] -3.0088</code></pre>
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">fm1R</span><span class="op">$</span><span class="va">f</span></code></pre></div>
+<pre><code>##  [1]  0.8000  1.3803  0.2393  0.0835 -0.8665 -1.2950 -1.7234 -2.1519 -2.5803
+## [10] -3.0088</code></pre>
+<div id="filtering-vectors-that-are-too-long-or-too-short" class="section level2">
+<h2 class="hasAnchor">
+<a href="#filtering-vectors-that-are-too-long-or-too-short" class="anchor"></a>Filtering vectors that are “too long” or “too short”</h2>
+<p>Consider filtering data vector <span class="math inline">\(y\)</span> vector with fewer elements than the number of rows in the model matrix:</p>
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">yshort</span> <span class="op">&lt;-</span> <span class="va">dat</span><span class="op">$</span><span class="va">y</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span>
+<span class="va">ylong</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">y</span>, <span class="cn">NA</span>, <span class="cn">NA</span><span class="op">)</span></code></pre></div>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">ylong</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">y</span>, <span class="cn">NA</span>, <span class="cn">NA</span><span class="op">)</span>
-<span class="va">fm3C</span> <span class="op">&lt;-</span> <span class="kw"><a href="https://rdrr.io/r/base/try.html">try</a></span><span class="op">(</span><span class="fu">dlmFilter</span><span class="op">(</span><span class="va">ylong</span>, <span class="va">mm1</span><span class="op">)</span><span class="op">)</span>          <span class="co">## Using C code</span>
-<span class="va">fm3R</span> <span class="op">&lt;-</span> <span class="kw"><a href="https://rdrr.io/r/base/try.html">try</a></span><span class="op">(</span><span class="fu">dlmFilter</span><span class="op">(</span><span class="va">ylong</span>, <span class="va">mm1</span>, debug<span class="op">=</span><span class="cn">T</span><span class="op">)</span><span class="op">)</span> <span class="co">## Using R code</span></code></pre></div>
-<pre><code>## Error in mod$X[i, mod$JFF[, 3]] : subscript out of bounds</code></pre>
+<code class="sourceCode R"><span class="va">fm2C</span> <span class="op">&lt;-</span> <span class="fu">dlm</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/dlm/man/dlmFilter.html">dlmFilter</a></span><span class="op">(</span><span class="va">yshort</span>, <span class="va">drm1</span><span class="op">)</span>          <span class="co">## Using C code</span>
+<span class="va">fm2R</span> <span class="op">&lt;-</span> <span class="fu">dlm</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/dlm/man/dlmFilter.html">dlmFilter</a></span><span class="op">(</span><span class="va">yshort</span>, <span class="va">drm1</span>, debug<span class="op">=</span><span class="cn">T</span><span class="op">)</span> <span class="co">## Using R code</span>
+<span class="va">fm2C</span><span class="op">$</span><span class="va">f</span></code></pre></div>
+<pre><code>## [1] 0.800 1.320 0.823 0.659 0.186</code></pre>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">fm3C</span> <span class="op">%&gt;%</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="va">head</span>, <span class="fl">3</span><span class="op">)</span></code></pre></div>
-<pre><code>## $y
-## [1] 1.557 0.262 0.416
-## 
-## $mod
-## $mod$m0
-## [1]  1.0 -0.2
-## 
-## $mod$C0
-##      [,1] [,2]
-## [1,]    1    0
-## [2,]    0    1
-## 
-## $mod$FF
-##      [,1] [,2]
-## [1,]    1    1
-## 
-## 
-## $m
-##      [,1]   [,2]
-## [1,] 1.00 -0.200
-## [2,] 1.11  0.118
-## [3,] 1.14 -0.144
-## 
-## $U.C
-## $U.C[[1]]
-##      [,1] [,2]
-## [1,]    1    0
-## [2,]    0    1
-## 
-## $U.C[[2]]
-##        [,1]   [,2]
-## [1,] -0.316  0.949
-## [2,] -0.949 -0.316
-## 
-## $U.C[[3]]
-##        [,1]   [,2]
-## [1,] -0.258 -0.966
-## [2,] -0.966  0.258
-## 
-## 
-## $D.C
-##       [,1] [,2]
-## [1,] 1.000 1.00
-## [2,] 0.303 1.05
-## [3,] 0.212 1.08
-## 
-## $a
-##      [,1]   [,2]
-## [1,] 1.00 -0.200
-## [2,] 1.11  0.118
-## [3,] 1.14 -0.144
-## 
-## $U.R
-## $U.R[[1]]
-##      [,1] [,2]
-## [1,]   -1    0
-## [2,]    0   -1
-## 
-## $U.R[[2]]
-##        [,1]  [,2]
-## [1,]  0.949 0.316
-## [2,] -0.316 0.949
-## 
-## $U.R[[3]]
-##        [,1]   [,2]
-## [1,]  0.966 -0.258
-## [2,] -0.258 -0.966
-## 
-## 
-## $D.R
-##      [,1]  [,2]
-## [1,] 1.05 1.049
-## [2,] 1.10 0.438
-## [3,] 1.13 0.381
-## 
-## $f
-## [1] 0.40 1.58 0.42</code></pre>
+<code class="sourceCode R"><span class="va">fm2R</span><span class="op">$</span><span class="va">f</span></code></pre></div>
+<pre><code>## [1]  0.8000  1.3803  0.2393  0.0835 -0.8665</code></pre>
+<p>When filtering is based on R code, we get results consistent with what happened when filtering the full <span class="math inline">\(y\)</span> vector; with C code we get something else. This behaviour does not seem to be documented anywhere.</p>
+<p>Next consider filtering a vector with more elements than the number of rows in the model matrix. (There is no information in the supplied model matrix for generating <span class="math inline">\(F_t\)</span> for <span class="math inline">\(t&gt;6\)</span>). The R based engine correctly captures the problem; the C based engine does not. This behaviour does not seem to be documented anywhere.</p>
 <div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">fm3C</span> <span class="op">&lt;-</span> <span class="kw"><a href="https://rdrr.io/r/base/try.html">try</a></span><span class="op">(</span><span class="fu">dlm</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/dlm/man/dlmFilter.html">dlmFilter</a></span><span class="op">(</span><span class="va">ylong</span>, <span class="va">drm1</span><span class="op">)</span><span class="op">)</span>          <span class="co">## Using C code</span>
+<span class="va">fm3R</span> <span class="op">&lt;-</span> <span class="kw"><a href="https://rdrr.io/r/base/try.html">try</a></span><span class="op">(</span><span class="fu">dlm</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/dlm/man/dlmFilter.html">dlmFilter</a></span><span class="op">(</span><span class="va">ylong</span>, <span class="va">drm1</span>, debug<span class="op">=</span><span class="cn">T</span><span class="op">)</span><span class="op">)</span> <span class="co">## Using R code</span></code></pre></div>
+<pre><code>## Error in mod$X[i, mod$JFF[, 3]] : subscript out of bounds</code></pre>
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">fm3C</span><span class="op">)</span></code></pre></div>
+<pre><code>## [1] "y"   "mod" "m"   "U.C" "D.C" "a"   "U.R" "D.R" "f"</code></pre>
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">fm3R</span></code></pre></div>
 <pre><code>## [1] "Error in mod$X[i, mod$JFF[, 3]] : subscript out of bounds\n"
 ## attr(,"class")
@@ -318,29 +217,46 @@
 ## attr(,"condition")
 ## &lt;simpleError in mod$X[i, mod$JFF[, 3]]: subscript out of bounds&gt;</code></pre>
 </div>
-</div>
-<div id="important-issue-recommendation" class="section level2">
+<div id="recommendation-use-dlmxfilter" class="section level2">
 <h2 class="hasAnchor">
-<a href="#important-issue-recommendation" class="anchor"></a>Important issue: Recommendation</h2>
-<p>Based on these findings, I recommend to stay on the safe side and always set <code>debug=T</code>. (Fast C code is nice; correct results are nicer.)</p>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">## FIXME: Should handle this in debug=T-issue in dlmextra</span></code></pre></div>
+<a href="#recommendation-use-dlmxfilter" class="anchor"></a>Recommendation: use <code>dlmxFilter</code>
+</h2>
+<p>Based on these findings, I recommend to stay on the safe side and always set <code>debug=T</code>. (Fast C code is nice; correct results are nicer.) In <code>dlmextra</code>, the <code>dlmxFilter</code> function only uses the R code, so sticking to that function should make you safe.</p>
 </div>
 <div id="accessing-a-filtered-object" class="section level2">
 <h2 class="hasAnchor">
 <a href="#accessing-a-filtered-object" class="anchor"></a>Accessing a filtered object</h2>
-<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">sel</span> <span class="op">&lt;-</span> <span class="fl">1</span><span class="op">:</span><span class="fl">6</span>
-<span class="fu"><a href="../reference/extract-dlmFiltered.html">getdlmf</a></span><span class="op">(</span><span class="va">fm1R</span>, <span class="st">"m"</span>, select<span class="op">=</span><span class="va">sel</span><span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">fm1R</span><span class="op">)</span></code></pre></div>
+<pre><code>## [1] "y"   "mod" "m"   "U.C" "D.C" "a"   "U.R" "D.R" "f"</code></pre>
+<p>As shown above, a filtered object contains data <code>y</code>, the model object <code>mod</code> itself, the slots <code>m</code>, <code>a</code>, <code>f</code> (refer to the book for these quantities) but not <code>R</code> and <code>C</code>. However, these quantities can be constructed / extracted as:</p>
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">sel</span> <span class="op">&lt;-</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span>
+<span class="fu"><a href="../reference/extract-dlm.html">getdlm</a></span><span class="op">(</span><span class="va">fm1R</span>, <span class="st">"m"</span>, select<span class="op">=</span><span class="va">sel</span><span class="op">)</span></code></pre></div>
 <pre><code>##      [,1]    [,2]
 ## [1,] 1.00 -0.2000
-## [2,] 1.26  0.0601
-## [3,] 1.24 -0.3335
-## [4,] 1.23 -0.2858
-## [5,] 1.23 -0.2858
-## [6,] 1.23 -0.2858</code></pre>
-<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/extract-dlmFiltered.html">getdlmf</a></span><span class="op">(</span><span class="va">fm1R</span>, <span class="st">"C"</span>, select<span class="op">=</span><span class="va">sel</span><span class="op">)</span></code></pre></div>
+## [2,] 1.26  0.0601</code></pre>
+<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/extract-dlm.html">getdlm</a></span><span class="op">(</span><span class="va">fm1R</span>, <span class="st">"sdC"</span>, select<span class="op">=</span><span class="va">sel</span><span class="op">)</span> <span class="co"># Sqrt of diagonals of C</span></code></pre></div>
+<pre><code>##      [,1] [,2]
+## [1,] 1.00 1.00
+## [2,] 0.85 0.85</code></pre>
+<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/extract-dlm.html">getdlm</a></span><span class="op">(</span><span class="va">fm1R</span>, <span class="st">"a"</span>, select<span class="op">=</span><span class="va">sel</span><span class="op">)</span></code></pre></div>
+<pre><code>##      [,1]    [,2]
+## [1,] 1.00 -0.2000
+## [2,] 1.26  0.0601</code></pre>
+<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/extract-dlm.html">getdlm</a></span><span class="op">(</span><span class="va">fm1R</span>, <span class="st">"sdR"</span>, select<span class="op">=</span><span class="va">sel</span><span class="op">)</span> <span class="co"># Sqrt of diagonals of R</span></code></pre></div>
+<pre><code>##       [,1]  [,2]
+## [1,] 1.049 1.049
+## [2,] 0.907 0.907</code></pre>
+<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/extract-dlm.html">getdlm</a></span><span class="op">(</span><span class="va">fm1R</span>, <span class="st">"f"</span>, sel<span class="op">=</span><span class="va">sel</span><span class="op">)</span></code></pre></div>
+<pre><code>## [1] 0.80 1.38</code></pre>
+<p>List of matrices with <span class="math inline">\(G\)</span> and <span class="math inline">\(R\)</span>:</p>
+<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/extract-dlm.html">getdlm</a></span><span class="op">(</span><span class="va">fm1R</span>, <span class="st">"C"</span>, select<span class="op">=</span><span class="va">sel</span><span class="op">)</span></code></pre></div>
 <pre><code>## [[1]]
 ##      [,1] [,2]
 ## [1,]    1    0
@@ -349,38 +265,9 @@
 ## [[2]]
 ##        [,1]   [,2]
 ## [1,]  0.722 -0.378
-## [2,] -0.378  0.722
-## 
-## [[3]]
-##        [,1]   [,2]
-## [1,]  0.821 -0.401
-## [2,] -0.401  0.377
-## 
-## [[4]]
-##        [,1]   [,2]
-## [1,]  0.900 -0.325
-## [2,] -0.325  0.198
-## 
-## [[5]]
-##        [,1]   [,2]
-## [1,]  1.000 -0.325
-## [2,] -0.325  0.298
-## 
-## [[6]]
-##        [,1]   [,2]
-## [1,]  1.100 -0.325
-## [2,] -0.325  0.398</code></pre>
-<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/extract-dlmFiltered.html">getdlmf</a></span><span class="op">(</span><span class="va">fm1R</span>, <span class="st">"a"</span>, select<span class="op">=</span><span class="va">sel</span><span class="op">)</span></code></pre></div>
-<pre><code>##      [,1]    [,2]
-## [1,] 1.00 -0.2000
-## [2,] 1.26  0.0601
-## [3,] 1.24 -0.3335
-## [4,] 1.23 -0.2858
-## [5,] 1.23 -0.2858
-## [6,] 1.23 -0.2858</code></pre>
-<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/extract-dlmFiltered.html">getdlmf</a></span><span class="op">(</span><span class="va">fm1R</span>, <span class="st">"R"</span>, select<span class="op">=</span><span class="va">sel</span><span class="op">)</span></code></pre></div>
+## [2,] -0.378  0.722</code></pre>
+<div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/extract-dlm.html">getdlm</a></span><span class="op">(</span><span class="va">fm1R</span>, <span class="st">"R"</span>, select<span class="op">=</span><span class="va">sel</span><span class="op">)</span></code></pre></div>
 <pre><code>## [[1]]
 ##      [,1] [,2]
 ## [1,]  1.1  0.0
@@ -389,67 +276,137 @@
 ## [[2]]
 ##        [,1]   [,2]
 ## [1,]  0.822 -0.378
-## [2,] -0.378  0.822
-## 
-## [[3]]
-##        [,1]   [,2]
-## [1,]  0.921 -0.401
-## [2,] -0.401  0.477
-## 
-## [[4]]
-##        [,1]   [,2]
-## [1,]  1.000 -0.325
-## [2,] -0.325  0.298
-## 
-## [[5]]
-##        [,1]   [,2]
-## [1,]  1.100 -0.325
-## [2,] -0.325  0.398
-## 
-## [[6]]
-##        [,1]   [,2]
-## [1,]  1.200 -0.325
-## [2,] -0.325  0.498</code></pre>
-<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">## FIXME: diagCC and diagRR would be nice</span></code></pre></div>
+## [2,] -0.378  0.822</code></pre>
 </div>
-<div id="filtering-and-forecasting" class="section level2">
+</div>
+<div id="estimation" class="section level1">
+<h1 class="hasAnchor">
+<a href="#estimation" class="anchor"></a>Estimation</h1>
+<p>The issue about using R or C code also arises in connection with estimation. Say we want to estimate the unknown variances:</p>
+<div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu">V</span><span class="op">(</span><span class="va">drm1</span><span class="op">)</span></code></pre></div>
+<pre><code>##      [,1]
+## [1,]    1</code></pre>
+<div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu">W</span><span class="op">(</span><span class="va">drm1</span><span class="op">)</span></code></pre></div>
+<pre><code>##      [,1] [,2]
+## [1,]  0.1  0.0
+## [2,]  0.0  0.1</code></pre>
+<p>The way ahead is along these lines. Notice that the number of rows in the model matrix is the same as the number of elements in <span class="math inline">\(y\)</span>. Notice that there are two underlying engines for estimation. Fortunately we get same results, but that is not always the case as we shall see below.</p>
+<div class="sourceCode" id="cb55"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">build_obj</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">p</span>, <span class="va">obj</span><span class="op">)</span><span class="op">{</span>
+    <span class="fu">V</span><span class="op">(</span><span class="va">obj</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="va">p</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>
+    <span class="fu"><a href="https://rdrr.io/r/base/diag.html">diag</a></span><span class="op">(</span><span class="fu">W</span><span class="op">(</span><span class="va">obj</span><span class="op">)</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="va">p</span><span class="op">[</span><span class="fl">2</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span><span class="op">)</span>
+    <span class="va">obj</span>
+<span class="op">}</span>
+
+<span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.2</span>, <span class="fl">0.3</span><span class="op">)</span>
+
+<span class="va">fit1C</span> <span class="op">&lt;-</span> <span class="fu">dlmMLE</span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">y</span>, parm<span class="op">=</span><span class="va">p</span>, build<span class="op">=</span><span class="va">build_obj</span>, obj<span class="op">=</span><span class="va">drm1</span><span class="op">)</span>          <span class="co">## Using C code</span>
+<span class="va">fit1R</span> <span class="op">&lt;-</span> <span class="fu">dlmMLE</span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">y</span>, parm<span class="op">=</span><span class="va">p</span>, build<span class="op">=</span><span class="va">build_obj</span>, obj<span class="op">=</span><span class="va">drm1</span>, debug<span class="op">=</span><span class="cn">T</span><span class="op">)</span> <span class="co">## Using R code</span>
+<span class="va">fit1C</span><span class="op">$</span><span class="va">par</span></code></pre></div>
+<pre><code>## [1]  -1.72 -19.19 -22.11</code></pre>
+<div class="sourceCode" id="cb57"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">fit1R</span><span class="op">$</span><span class="va">par</span></code></pre></div>
+<pre><code>## [1]  -1.72 -19.19 -22.11</code></pre>
+<div id="estimation-with-vectors-that-are-too-long-or-too-short" class="section level2">
 <h2 class="hasAnchor">
-<a href="#filtering-and-forecasting" class="anchor"></a>Filtering and forecasting</h2>
+<a href="#estimation-with-vectors-that-are-too-long-or-too-short" class="anchor"></a>Estimation with vectors that are “too long” or “too short”</h2>
+<p>Consider estimation with at data vector <span class="math inline">\(y\)</span> vector with fewer elements than the number of rows in the model matrix:</p>
+<div class="sourceCode" id="cb59"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">fit2C</span> <span class="op">&lt;-</span> <span class="fu">dlmMLE</span><span class="op">(</span><span class="va">yshort</span>, parm<span class="op">=</span><span class="va">p</span>, build<span class="op">=</span><span class="va">build_obj</span>, obj<span class="op">=</span><span class="va">drm1</span><span class="op">)</span> <span class="co">## Wrong!</span>
+<span class="va">fit2R</span> <span class="op">&lt;-</span> <span class="fu">dlmMLE</span><span class="op">(</span><span class="va">yshort</span>, parm<span class="op">=</span><span class="va">p</span>, build<span class="op">=</span><span class="va">build_obj</span>, obj<span class="op">=</span><span class="va">drm1</span>, debug<span class="op">=</span><span class="cn">T</span><span class="op">)</span>
+<span class="va">fit2C</span><span class="op">$</span><span class="va">par</span></code></pre></div>
+<pre><code>## [1] -1.76 -1.43 -1.24</code></pre>
+<div class="sourceCode" id="cb61"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">fit2R</span><span class="op">$</span><span class="va">par</span></code></pre></div>
+<pre><code>## [1]  -1.72 -19.19 -22.11</code></pre>
+<p>When estimation is based on R code, we get results consistent with what happened when estimating with the full y vector; with C code we get something else. This behaviour does not seem to be documented anywhere.</p>
+<p>Next consider estimation with a vector with more elements than the number of rows in the model matrix. (There is no information in the supplied model matrix for generating <span class="math inline">\(F_t\)</span> for <span class="math inline">\(t&gt;6\)</span>). The R based engine correctly captures the problem; the C based engine does not. This behaviour does not seem to be documented anywhere.</p>
+<div class="sourceCode" id="cb63"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">fit3C</span> <span class="op">&lt;-</span> <span class="kw"><a href="https://rdrr.io/r/base/try.html">try</a></span><span class="op">(</span><span class="fu">dlmMLE</span><span class="op">(</span><span class="va">ylong</span>, parm<span class="op">=</span><span class="va">p</span>, build<span class="op">=</span><span class="va">build_obj</span>, obj<span class="op">=</span><span class="va">drm1</span><span class="op">)</span><span class="op">)</span>
+<span class="va">fit3R</span> <span class="op">&lt;-</span> <span class="kw"><a href="https://rdrr.io/r/base/try.html">try</a></span><span class="op">(</span><span class="fu">dlmMLE</span><span class="op">(</span><span class="va">ylong</span>, parm<span class="op">=</span><span class="va">p</span>, build<span class="op">=</span><span class="va">build_obj</span>, obj<span class="op">=</span><span class="va">drm1</span>, debug<span class="op">=</span><span class="cn">T</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<pre><code>## Error in mod$X[i, mod$JFF[, 3]] : subscript out of bounds</code></pre>
+<div class="sourceCode" id="cb65"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">fit3C</span><span class="op">$</span><span class="va">par</span></code></pre></div>
+<pre><code>## [1]  -1.29 -15.53  -6.74</code></pre>
+<div class="sourceCode" id="cb67"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">fit3R</span></code></pre></div>
+<pre><code>## [1] "Error in mod$X[i, mod$JFF[, 3]] : subscript out of bounds\n"
+## attr(,"class")
+## [1] "try-error"
+## attr(,"condition")
+## &lt;simpleError in mod$X[i, mod$JFF[, 3]]: subscript out of bounds&gt;</code></pre>
+</div>
+<div id="recommendation-use-dlmxmle" class="section level2">
+<h2 class="hasAnchor">
+<a href="#recommendation-use-dlmxmle" class="anchor"></a>Recommendation: use <code>dlmxMLE</code>
+</h2>
+<p>Based on these findings, I recommend to stay on the safe side and always set <code>debug=T</code>. (Fast C code is nice; correct results are nicer.) In <code>dlmextra</code>, the <code>dlmxMLE</code> function only uses the R code, so sticking to that function should make you safe. The <code>dlmxMLE</code> function also check that dimension of <span class="math inline">\(y\)</span> and the model matrix match.</p>
+<p>One feature of <code>dlmxMLE</code> is that the function returns the model object with the estimated parameters.</p>
+<div class="sourceCode" id="cb69"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">xx</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/dlmxMLE.html">dlmxMLE</a></span><span class="op">(</span><span class="va">yshort</span>, parm<span class="op">=</span><span class="va">p</span>, build<span class="op">=</span><span class="va">build_obj</span>, obj<span class="op">=</span><span class="va">drm1</span><span class="op">)</span>
+<span class="va">xx</span><span class="op">$</span><span class="va">par</span></code></pre></div>
+<pre><code>## [1]  -1.72 -19.19 -22.11</code></pre>
+<div class="sourceCode" id="cb71"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="va">xx</span><span class="op">$</span><span class="va">par</span><span class="op">)</span></code></pre></div>
+<pre><code>## [1] 1.79e-01 4.65e-09 2.49e-10</code></pre>
+<div class="sourceCode" id="cb73"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">zz</span> <span class="op">&lt;-</span> <span class="va">xx</span><span class="op">$</span><span class="va">mod</span>
+<span class="fu">V</span><span class="op">(</span><span class="va">zz</span><span class="op">)</span></code></pre></div>
+<pre><code>##       [,1]
+## [1,] 0.179</code></pre>
+<div class="sourceCode" id="cb75"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu">W</span><span class="op">(</span><span class="va">zz</span><span class="op">)</span></code></pre></div>
+<pre><code>##          [,1]     [,2]
+## [1,] 4.65e-09 0.00e+00
+## [2,] 0.00e+00 2.49e-10</code></pre>
+</div>
+</div>
+<div id="forecasting" class="section level1">
+<h1 class="hasAnchor">
+<a href="#forecasting" class="anchor"></a>Forecasting</h1>
 <p>The <code><a href="https://rdrr.io/pkg/dlm/man/dlmForecast.html">dlm::dlmForecast</a></code> function does not work with non-constant models, i.e. models where <span class="math inline">\(F\)</span>, <span class="math inline">\(G\)</span>, <span class="math inline">\(V\)</span> or <span class="math inline">\(W\)</span> are vary with time. The problem is that if one of the components is time varying then this compenent needs to be constructed on the fly as explained above.</p>
-<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb77"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/try.html">try</a></span><span class="op">(</span><span class="fu">dlm</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/dlm/man/dlmForecast.html">dlmForecast</a></span><span class="op">(</span><span class="va">fm1R</span>, nAhead<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">tt</span><span class="op">)</span> <span class="op">-</span> <span class="va">nseen</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code>## Error in dlm::dlmForecast(fm1R, nAhead = length(tt) - nseen) : 
 ##   dlmForecast only works with constant models</code></pre>
+<div id="recommendation-use-dlmxforecast" class="section level2">
+<h2 class="hasAnchor">
+<a href="#recommendation-use-dlmxforecast" class="anchor"></a>Recommendation: use <code>dlmxForecast</code>
+</h2>
 <p>However, forecasting is nothing but filtering with missing data. Hence, as long as the model matrix in the model object has “enough rows” for constructing time dependent quantities we are fine and can make the necessary computations as illustrated above:</p>
-<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">v</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/forecast.html">dlmXForecast</a></span><span class="op">(</span><span class="va">fm1R</span>, nAhead<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">tt</span><span class="op">)</span><span class="op">-</span><span class="va">nseen</span>, offset<span class="op">=</span><span class="va">nseen</span><span class="op">)</span></code></pre></div>
-<pre><code>## dlmXForecast.dlmFiltered
+<div class="sourceCode" id="cb79"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">v</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/forecast.html">dlmxForecast</a></span><span class="op">(</span><span class="va">fm1R</span>, nAhead<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">tt</span><span class="op">)</span><span class="op">-</span><span class="va">nseen</span>, offset<span class="op">=</span><span class="va">nseen</span><span class="op">)</span></code></pre></div>
+<pre><code>## dlmxForecast.dlmFiltered
 ## List of 3
-##  $ m.start: num [1:2] 1.227 -0.286
-##  $ nAhead : num 3
-##  $ offset : num 3</code></pre>
-<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
+##  $ m.start: num [1:2] 1.276 -0.428
+##  $ nAhead : num 6
+##  $ offset : num 4</code></pre>
+<div class="sourceCode" id="cb81"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">ci</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/confint.html">confint</a></span><span class="op">(</span><span class="va">v</span><span class="op">)</span>
 <span class="va">ci</span></code></pre></div>
-<pre><code>##       fit   lwr  upr xrow
-## 1  0.0835 -3.92 4.09    4
-## 2 -0.2023 -6.02 5.62    5
-## 3 -0.4881 -8.39 7.41    6</code></pre>
+<pre><code>##      fit    lwr   upr xrow
+## 1 -0.867  -5.20  3.47    5
+## 2 -1.295  -7.63  5.04    6
+## 3 -1.723 -10.28  6.83    7
+## 4 -2.152 -13.12  8.81    8
+## 5 -2.580 -16.13 10.97    9
+## 6 -3.009 -19.30 13.28   10</code></pre>
 </div>
-<div id="a-couple-of-nice-plots" class="section level2">
-<h2 class="hasAnchor">
-<a href="#a-couple-of-nice-plots" class="anchor"></a>A couple of nice plots</h2>
+</div>
+<div id="a-couple-of-nice-plots" class="section level1">
+<h1 class="hasAnchor">
+<a href="#a-couple-of-nice-plots" class="anchor"></a>A couple of nice plots</h1>
 <p>Now we can plot with prediction intervals etc.</p>
-<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb83"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">ci</span><span class="op">$</span><span class="va">tt</span> <span class="op">&lt;-</span> <span class="va">tt</span><span class="op">[</span><span class="va">ci</span><span class="op">$</span><span class="va">xrow</span><span class="op">]</span>
 <span class="va">pt1</span> <span class="op">&lt;-</span> <span class="va">pt0</span> <span class="op">+</span>
     <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html">geom_vline</a></span><span class="op">(</span>xintercept<span class="op">=</span><span class="va">tt</span><span class="op">[</span><span class="va">nseen</span><span class="op">]</span>, col<span class="op">=</span><span class="st">"red"</span><span class="op">)</span>   <span class="op">+</span> 
     <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html">geom_line</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">tt</span>, y<span class="op">=</span><span class="va">fit</span><span class="op">)</span>, data<span class="op">=</span><span class="va">ci</span>, col<span class="op">=</span><span class="st">"purple"</span><span class="op">)</span> <span class="op">+</span>
     <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_linerange.html">geom_errorbar</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">tt</span>, ymin<span class="op">=</span><span class="va">lwr</span>, ymax<span class="op">=</span><span class="va">upr</span><span class="op">)</span>, data<span class="op">=</span><span class="va">ci</span><span class="op">)</span>
 <span class="va">pt1</span></code></pre></div>
-<p><img src="dlmextra-intro_files/figure-html/unnamed-chunk-15-1.png" width="700"></p>
-</div>
+<p><img src="dlmextra-intro_files/figure-html/unnamed-chunk-22-1.png" width="700"></p>
 </div>
   </div>
 
