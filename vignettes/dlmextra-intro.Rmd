@@ -53,9 +53,9 @@ head(M)
 ```
 
 ```{r}
-pt0 <- ggplot(data=dat) + geom_point(aes(tt, y0)) +
-    geom_line(aes(x=tt, y=mu)) 
-pt0
+pt0 <- ggplot(data=dat) + geom_point(aes(tt, y0))
+pt1 <- pt0 + geom_line(aes(x=tt, y=mu)) 
+pt1
 ```
 
 ## Dynamic regression model in `dlm`
@@ -311,9 +311,9 @@ ci
 Now we can plot with prediction intervals etc.
 ```{r}
 ci$tt <- tt[ci$xrow]
-pt1 <- pt0 +
+pt2 <- pt0 +
     geom_vline(xintercept=tt[nseen], col="red")   + 
     geom_line(aes(x=tt, y=fit), data=ci, col="purple") +
     geom_errorbar(aes(x=tt, ymin=lwr, ymax=upr), data=ci)
-pt1
+pt2
 ```
