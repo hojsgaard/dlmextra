@@ -75,7 +75,7 @@
       <h1 data-toc-skip>dlmextra - introduction</h1>
                         <h4 class="author">Søren Højsgaard</h4>
             
-            <h4 class="date">Sun Nov 29 23:46:37 2020</h4>
+            <h4 class="date">Sun Nov 29 23:57:11 2020</h4>
       
       
       <div class="hidden name"><code>dlmextra-intro.Rmd</code></div>
@@ -123,9 +123,9 @@
 ## 5           1  5
 ## 6           1  6</code></pre>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">pt0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span>data<span class="op">=</span><span class="va">dat</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span><span class="va">tt</span>, <span class="va">y0</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
-    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html">geom_line</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">tt</span>, y<span class="op">=</span><span class="va">mu</span><span class="op">)</span><span class="op">)</span> 
-<span class="va">pt0</span></code></pre></div>
+<code class="sourceCode R"><span class="va">pt0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span>data<span class="op">=</span><span class="va">dat</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span><span class="va">tt</span>, <span class="va">y0</span><span class="op">)</span><span class="op">)</span>
+<span class="va">pt1</span> <span class="op">&lt;-</span> <span class="va">pt0</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html">geom_line</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">tt</span>, y<span class="op">=</span><span class="va">mu</span><span class="op">)</span><span class="op">)</span> 
+<span class="va">pt1</span></code></pre></div>
 <p><img src="dlmextra-intro_files/figure-html/unnamed-chunk-4-1.png" width="700"></p>
 <div id="dynamic-regression-model-in-dlm" class="section level2">
 <h2 class="hasAnchor">
@@ -401,11 +401,11 @@
 <p>Now we can plot with prediction intervals etc.</p>
 <div class="sourceCode" id="cb83"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">ci</span><span class="op">$</span><span class="va">tt</span> <span class="op">&lt;-</span> <span class="va">tt</span><span class="op">[</span><span class="va">ci</span><span class="op">$</span><span class="va">xrow</span><span class="op">]</span>
-<span class="va">pt1</span> <span class="op">&lt;-</span> <span class="va">pt0</span> <span class="op">+</span>
+<span class="va">pt2</span> <span class="op">&lt;-</span> <span class="va">pt0</span> <span class="op">+</span>
     <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html">geom_vline</a></span><span class="op">(</span>xintercept<span class="op">=</span><span class="va">tt</span><span class="op">[</span><span class="va">nseen</span><span class="op">]</span>, col<span class="op">=</span><span class="st">"red"</span><span class="op">)</span>   <span class="op">+</span> 
     <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html">geom_line</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">tt</span>, y<span class="op">=</span><span class="va">fit</span><span class="op">)</span>, data<span class="op">=</span><span class="va">ci</span>, col<span class="op">=</span><span class="st">"purple"</span><span class="op">)</span> <span class="op">+</span>
     <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_linerange.html">geom_errorbar</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">tt</span>, ymin<span class="op">=</span><span class="va">lwr</span>, ymax<span class="op">=</span><span class="va">upr</span><span class="op">)</span>, data<span class="op">=</span><span class="va">ci</span><span class="op">)</span>
-<span class="va">pt1</span></code></pre></div>
+<span class="va">pt2</span></code></pre></div>
 <p><img src="dlmextra-intro_files/figure-html/unnamed-chunk-22-1.png" width="700"></p>
 </div>
   </div>
